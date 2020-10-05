@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreatureExport", "CreatureExport\CreatureExport.csproj", "{F7E1D2DC-CC17-4F36-8171-DEEB54B4592D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E2C5B26D-9A85-4767-8B3A-A6AF8FC3F618}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{88782377-6142-4731-AE9B-4ECC0342EF60}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F7E1D2DC-CC17-4F36-8171-DEEB54B4592D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7E1D2DC-CC17-4F36-8171-DEEB54B4592D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7E1D2DC-CC17-4F36-8171-DEEB54B4592D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7E1D2DC-CC17-4F36-8171-DEEB54B4592D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = CreatureExport.vsmdi
+	EndGlobalSection
+EndGlobal

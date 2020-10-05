@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Dev\projects\masterplan-json-export" t="IncludeFlat">
+      <e p=".nuget" t="Include">
+        <e p="NuGet.Config" t="Include" />
+        <e p="NuGet.exe" t="Include" />
+        <e p="NuGet.targets" t="Include" />
+      </e>
+      <e p="CreatureExport" t="IncludeRecursive">
+        <e p="AddOnManager.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="CreatureExport.csproj" t="IncludeRecursive" />
+        <e p="ExportEncounterCommand.cs" t="Include" />
+        <e p="ExportProjectCommand.cs" t="Include" />
+        <e p="JSONBuilder.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive" />
+        <e p="packages.config" t="Include" />
+        <e p="Properties" t="Include">
+          <e p="AssemblyInfo.cs" t="Include" />
+        </e>
+        <e p="UI" t="Include">
+          <e p="ResultForm.cs" t="Include" />
+          <e p="ResultForm.Designer.cs" t="Include" />
+          <e p="ResultForm.resx" t="Include" />
+        </e>
+      </e>
+      <e p="CreatureExport.sln" t="IncludeFlat" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Solution Items" t="Include" />
+    </e>
+    <e p="C:\Users\Draconas\.Rider2019.2\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\Draconas\.Rider2019.2\system\resharper-host\local\Transient\ReSharperHost\v192\SolutionCaches\_CreatureExport.1573950038.00" t="ExcludeRecursive" />
+  </component>
+</project>

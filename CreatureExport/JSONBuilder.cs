@@ -43,11 +43,19 @@ namespace EncounterExport
             }
 
             var list = JsonConvert.SerializeObject(encounterList, Formatting.Indented, new StringEnumConverter());
+            var listOneLine = JsonConvert.SerializeObject(encounterList, new StringEnumConverter());
 
             var errors = encounterList.Select(x => x.Errors).SelectMany(x => x).ToList();
             var form = new ResultForm();
-            form.Open(list, errors);
+            form.Open(list, listOneLine, errors);
         }
+        
+        private readonly Regex damageDiceRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex damagePlusRx = new Regex(@"\+[ ]*([1-9][0-9]*)*",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex entireDamageStrRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)([ ]*\+[ ]*([1-9][0-9]*)*)*",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
         
         private Output createCreate(ICreature input)
         {
@@ -103,23 +111,7 @@ namespace EncounterExport
                 }
                 
                 // Skills
-                var skillArray = input.Skills.Split(',')
-                    .Select(x => x.Trim())
-                    .Where(x => x.Length > 0)
-                    .ToList();
-                var skillAndBonus = skillArray.Select(x => x.Split('+')).ToList();
-                List<NameValue> skills = new List<NameValue>();
-                foreach (var array in skillAndBonus)
-                {
-                    if (array.Length < 2)
-                    {
-                        errors.Add("Error converting skill " + string.Join(",", array) + " from " + input.Skills);
-                    }
-
-                    skills.Add(new NameValue(array[0].Trim(), Int32.Parse(array[1].Trim())));
-                }
-
-                result.Skills = skills;
+                result.Skills = ProcessSkills(input, errors);;
                 
                 //Movement Dist
                 var movetest = input.Movement.Split(',').First();
@@ -141,58 +133,9 @@ namespace EncounterExport
                     }
                 }
 
-                if (input.Auras != null)
-                {
-                    var auras = new List<NameDescValue>();
-                    foreach (var aura in input.Auras)
-                    {
-                        var firstPart = aura.Details.Split(' ')[0];
-                        int dist = 0;
-                        if (Int32.TryParse(firstPart, out dist))
-                        {
-                            auras.Add(new NameDescValue(aura.Name, aura.Details, dist));
-                        }
-                        else
-                        {
-                            errors.Add("Unable to parse distance for aura: " + aura.Name + ": " + aura.Details);
-                        }
-                    }
+                result.Auras = processAuras(input, errors);
 
-                    result.Auras = auras;
-                }
-
-                if (input.DamageModifiers != null)
-                {
-                    var resistances = "";
-                    var vunerables = "";
-                    foreach (var mod in input.DamageModifiers)
-                    {
-                        var str = ", " + mod.Value + " " + mod.Type;
-                        if (mod.Value == 0)
-                        {
-                            continue;
-                        }
-                        if (mod.Value < 0)
-                        {
-                            resistances = resistances + str;
-                        }
-                        else
-                        {
-                            vunerables = vunerables + str;;
-                        }
-                    }
-
-                    result.Resist += resistances;
-                    result.Vulnerable += vunerables;
-                    result.Resist = removeComma(result.Resist);
-                    result.Vulnerable = removeComma(result.Vulnerable);
-                }
-                Regex damageDiceRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)",
-                    RegexOptions.Compiled | RegexOptions.IgnoreCase);
-                Regex damagePlusRx = new Regex(@"\+[ ]*([1-9][0-9]*)*",
-                    RegexOptions.Compiled | RegexOptions.IgnoreCase);
-                Regex entireDamageStrRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)([ ]*\+[ ]*([1-9][0-9]*)*)*",
-                    RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                ProcessDamageModifiers(input, result);
                 
                 List<Power> powers = new List<Power>();
                 List<Power> traits = new List<Power>();
@@ -212,54 +155,7 @@ namespace EncounterExport
 
                     if (power.Attack != null)
                     {
-                        var dam = new ParsedDamage();
-                        resultPower.Damage = dam;
-                        var damageStr = power.Damage;
-                        // 3d10 + 9 damage
-                        // 4 damage
-                        var diceMatch = damageDiceRx.Match(damageStr);
-                        if (diceMatch.Success)
-                        {
-                            var numDice = diceMatch.Groups[1].Value;
-                            var diceSize = diceMatch.Groups[2].Value;
-                            if (!Int32.TryParse(numDice, out dam.NumDice))
-                            {
-                                errors.Add("Unable to parse number of dice for damage for power " + power.Name + ". " + damageStr + " regex found " + numDice);
-                            }
-                            if (!Int32.TryParse(diceSize, out dam.DiceSize))
-                            {
-                                errors.Add("Unable to parse dice size for damage for power " + power.Name + ". " + damageStr + " regex found " + diceSize);
-                            }
-
-                            var bonusMatch = damagePlusRx.Match(damageStr);
-                            if (bonusMatch.Success)
-                            {
-                                var bonus = bonusMatch.Groups[1].Value;
-                                if (!Int32.TryParse(bonus, out dam.Bonus))
-                                {
-                                    errors.Add("Unable to parse bonus damage for power " + power.Name + ". " + damageStr + " regex found " + bonus);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // assume its fixed damage
-                            var hopefullyNumber = damageStr.Split(' ').First();
-                            if (!Int32.TryParse(hopefullyNumber, out dam.Bonus))
-                            {
-                                errors.Add("Unable to parse bonus damage for non dice damage power " + power.Name + ". " + damageStr + " regex found " + hopefullyNumber);
-                            }
-                        }
-
-                        var entireMatch = entireDamageStrRx.Match(power.Details);
-                        if (entireMatch.Success)
-                        {
-                            resultPower.Damage.Raw = power.Damage;
-                            var match = entireMatch.Groups[0].Value; // get the entire match group
-                            var newDamageString =
-                                entireDamageStrRx.Replace(power.Details, "[[" + match + "]]");
-                            resultPower.PowerCard.Details = newDamageString;
-                        }
+                        ProcessAttack(resultPower, power, errors);
                     }
                 }
              
@@ -275,6 +171,161 @@ namespace EncounterExport
             {
                 throw new Exception("Error mapping creature " + input.Name, e);
             }
+        }
+
+        private void ProcessAttack(Power resultPower, CreaturePower power, List<string> errors)
+        {
+            var dam = new ParsedDamage();
+            resultPower.Damage = dam;
+            var damageStr = power.Damage;
+            // 3d10 + 9 damage
+            // 4 damage
+            var diceMatch = damageDiceRx.Match(damageStr);
+            if (diceMatch.Success)
+            {
+                var numDice = diceMatch.Groups[1].Value;
+                var diceSize = diceMatch.Groups[2].Value;
+                if (!Int32.TryParse(numDice, out dam.NumDice))
+                {
+                    errors.Add("Unable to parse number of dice for damage for power " + power.Name + ". " + damageStr +
+                               " regex found " + numDice);
+                }
+
+                if (!Int32.TryParse(diceSize, out dam.DiceSize))
+                {
+                    errors.Add("Unable to parse dice size for damage for power " + power.Name + ". " + damageStr +
+                               " regex found " + diceSize);
+                }
+
+                var bonusMatch = damagePlusRx.Match(damageStr);
+                if (bonusMatch.Success)
+                {
+                    var bonus = bonusMatch.Groups[1].Value;
+                    if (!Int32.TryParse(bonus, out dam.Bonus))
+                    {
+                        errors.Add("Unable to parse bonus damage for power " + power.Name + ". " + damageStr + " regex found " +
+                                   bonus);
+                    }
+                }
+            }
+            else
+            {
+                // assume its fixed damage
+                var hopefullyNumber = damageStr.Split(' ').First();
+                if (!Int32.TryParse(hopefullyNumber, out dam.Bonus))
+                {
+                    errors.Add("Unable to parse bonus damage for non dice damage power " + power.Name + ". " + damageStr +
+                               " regex found " + hopefullyNumber);
+                }
+            }
+
+            var entireMatch = entireDamageStrRx.Match(power.Details);
+            if (entireMatch.Success)
+            {
+                resultPower.Damage.Raw = power.Damage;
+                var match = entireMatch.Groups[0].Value; // get the entire match group
+                var newDamageString =
+                    entireDamageStrRx.Replace(power.Details, "[[" + match + "]]");
+                resultPower.PowerCard.Details = newDamageString;
+            }
+        }
+
+        private void ProcessDamageModifiers(ICreature input, OutputCreature result)
+        {
+            if (input.DamageModifiers != null)
+            {
+                var resistances = "";
+                var vunerables = "";
+                foreach (var mod in input.DamageModifiers)
+                {
+                    var str = ", " + mod.Value + " " + mod.Type;
+                    if (mod.Value == 0)
+                    {
+                        continue;
+                    }
+
+                    if (mod.Value < 0)
+                    {
+                        resistances = resistances + str;
+                    }
+                    else
+                    {
+                        vunerables = vunerables + str;
+                        ;
+                    }
+                }
+
+                result.Resist += resistances;
+                result.Vulnerable += vunerables;
+                result.Resist = removeComma(result.Resist);
+                result.Vulnerable = removeComma(result.Vulnerable);
+            }
+        }
+
+        private static List<NameValue> ProcessSkills(ICreature input, List<string> errors)
+        {
+            var skillArray = Regex.Split(input.Skills, @"[\,\;]")
+                .Select(x => x.Trim())
+                .Where(x => x.Length > 0)
+                .ToList();
+            var skillAndBonus = skillArray.Select(x => Regex.Split(x, @"[\+ ]")).ToList();
+            List<NameValue> skills = new List<NameValue>();
+            foreach (var array in skillAndBonus)
+            {
+                if (array.Length < 2)
+                {
+                    errors.Add("Error converting skill [" + string.Join(",", array.Select(x => "'" + x + "'").ToArray()) + "] from '" + input.Skills + "'");
+                }
+                else
+                {
+                    try
+                    {
+                        if (array.Length == 2)
+                        {
+                            skills.Add(new NameValue(array[0].Trim(), Int32.Parse(array[1].Trim())));
+                        }
+                        else if (array.Length == 3)
+                        {
+                            skills.Add(new NameValue(array[0].Trim(), Int32.Parse(array[2].Trim())));
+                        }
+                        else
+                        {
+                            throw new Exception("unknown array size");
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        errors.Add("Error converting skill (error parsing output) [" + string.Join(",", array.Select(x => "'" + x + "'").ToArray()) + "] from '" + input.Skills + "'");
+                    }
+                }
+            }
+
+            return skills;
+        }
+
+        private List<NameDescValue> processAuras(ICreature input, List<String> errors)
+        {
+            if (input.Auras != null)
+            {
+                var auras = new List<NameDescValue>();
+                foreach (var aura in input.Auras)
+                {
+                    var firstPart = aura.Details.Split(' ')[0];
+                    int dist = 0;
+                    if (Int32.TryParse(firstPart, out dist))
+                    {
+                        auras.Add(new NameDescValue(aura.Name, aura.Details, dist));
+                    }
+                    else
+                    {
+                        errors.Add("Unable to parse distance for aura: " + aura.Name + ": " + aura.Details);
+                    }
+                }
+
+                return auras;
+            }
+
+            return null;
         }
 
         private string removeComma(string input)

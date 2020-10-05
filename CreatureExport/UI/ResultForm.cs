@@ -13,9 +13,10 @@ namespace CompendiumImport.UI
             InitializeComponent();
         }
 
-        public void Open(string result, List<string> errors)
+        public void Open(string result, string listOneLine, List<string> errors)
         {
             OutputBox.Text = result;
+            oneLinerBox.Text = listOneLine;
             ErrorBox.Lines = errors.ToArray();
             this.ShowDialog();
         }
@@ -33,6 +34,14 @@ namespace CompendiumImport.UI
                 sw.WriteLine(OutputBox.Text);
             }
             Process.Start(export);
+        }
+
+        private void OutputBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.A)
+            {
+                ((TextBox) sender)?.SelectAll();
+            }
         }
     }
 }

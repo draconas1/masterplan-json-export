@@ -12,42 +12,51 @@ namespace EncounterExport
 {
     public class JSONBuilder
     { 
-        private readonly IApplication _MPApp;
+        private readonly IApplication _mpApp;
         public JSONBuilder(IApplication mpApp)
         {
-            _MPApp = mpApp;
+            _mpApp = mpApp;
         }
         public void CreateEncounterJson(List<PlotPoint> plotPoints)
         {
-            var encounterList = new List<EncounterOutput>();
-            
-            foreach (var plotPoint in plotPoints)
+            try
             {
-                var encounter = plotPoint.Element as Encounter;
-                if (encounter == null)
+                var encounterList = new List<EncounterOutput>();
+
+                foreach (var plotPoint in plotPoints)
                 {
-                    continue;
+                    var encounter = plotPoint.Element as Encounter;
+                    if (encounter == null)
+                    {
+                        continue;
+                    }
+
+                    var creatures = encounter.Slots.Select(y => y.Card)
+                        .Select(z => z.CreatureID)
+                        .Select(FindCreature)
+                        .Select(createCreate)
+                        .ToList();
+
+                    var output = new EncounterOutput();
+                    output.Name = plotPoint.Name;
+                    output.Creatures = creatures.Select(x => x.Creature).ToList();
+                    output.Errors = creatures.Select(x => x.Errors.Select(y => x.Name + ": " + y)).SelectMany(x => x)
+                        .ToList();
+                    encounterList.Add(output);
                 }
-                
-                var creatures = encounter.Slots.Select(y => y.Card)
-                    .Select(z => z.CreatureID)
-                    .Select(FindCreature)
-                    .Select(createCreate)
-                    .ToList();
 
-                var output = new EncounterOutput();
-                output.Name = plotPoint.Name;
-                output.Creatures = creatures.Select(x => x.Creature).ToList();
-                output.Errors = creatures.Select(x => x.Errors.Select(y => x.Name + ": " + y)).SelectMany(x => x).ToList();
-                encounterList.Add(output);
+                var list = JsonConvert.SerializeObject(encounterList, Formatting.Indented, new StringEnumConverter());
+
+                var errors = encounterList.Select(x => x.Errors).SelectMany(x => x).ToList();
+                var form = new ResultForm();
+                form.Open(list, errors);
             }
-
-            var list = JsonConvert.SerializeObject(encounterList, Formatting.Indented, new StringEnumConverter());
-            var listOneLine = JsonConvert.SerializeObject(encounterList, new StringEnumConverter());
-
-            var errors = encounterList.Select(x => x.Errors).SelectMany(x => x).ToList();
-            var form = new ResultForm();
-            form.Open(list, listOneLine, errors);
+            catch (Exception e)
+            {
+                var form = new ResultForm();
+                form.Open("Fatal error: " + e, new List<string>());
+                throw e;
+            }
         }
         
         private readonly Regex damageDiceRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)",
@@ -115,8 +124,7 @@ namespace EncounterExport
                 
                 //Movement Dist
                 var movetest = input.Movement.Split(',').First();
-                int moveDist = 0;
-                if (Int32.TryParse(movetest.Trim(), out moveDist))
+                if (Int32.TryParse(movetest.Trim(), out var moveDist))
                 {
                     result.MovementDist = moveDist;
                 }
@@ -180,42 +188,45 @@ namespace EncounterExport
             var damageStr = power.Damage;
             // 3d10 + 9 damage
             // 4 damage
-            var diceMatch = damageDiceRx.Match(damageStr);
-            if (diceMatch.Success)
+            if (damageStr.Trim().Length > 0) //if there is no damage string assume its a non damaging power and move on
             {
-                var numDice = diceMatch.Groups[1].Value;
-                var diceSize = diceMatch.Groups[2].Value;
-                if (!Int32.TryParse(numDice, out dam.NumDice))
+                var diceMatch = damageDiceRx.Match(damageStr);
+                if (diceMatch.Success)
                 {
-                    errors.Add("Unable to parse number of dice for damage for power " + power.Name + ". " + damageStr +
-                               " regex found " + numDice);
-                }
-
-                if (!Int32.TryParse(diceSize, out dam.DiceSize))
-                {
-                    errors.Add("Unable to parse dice size for damage for power " + power.Name + ". " + damageStr +
-                               " regex found " + diceSize);
-                }
-
-                var bonusMatch = damagePlusRx.Match(damageStr);
-                if (bonusMatch.Success)
-                {
-                    var bonus = bonusMatch.Groups[1].Value;
-                    if (!Int32.TryParse(bonus, out dam.Bonus))
+                    var numDice = diceMatch.Groups[1].Value;
+                    var diceSize = diceMatch.Groups[2].Value;
+                    if (!Int32.TryParse(numDice, out dam.NumDice))
                     {
-                        errors.Add("Unable to parse bonus damage for power " + power.Name + ". " + damageStr + " regex found " +
-                                   bonus);
+                        errors.Add("Unable to parse number of dice for damage for power " + power.Name + ". " + damageStr +
+                                   " regex found " + numDice);
+                    }
+
+                    if (!Int32.TryParse(diceSize, out dam.DiceSize))
+                    {
+                        errors.Add("Unable to parse dice size for damage for power " + power.Name + ". " + damageStr +
+                                   " regex found " + diceSize);
+                    }
+
+                    var bonusMatch = damagePlusRx.Match(damageStr);
+                    if (bonusMatch.Success)
+                    {
+                        var bonus = bonusMatch.Groups[1].Value;
+                        if (!Int32.TryParse(bonus, out dam.Bonus))
+                        {
+                            errors.Add("Unable to parse bonus damage for power " + power.Name + ". " + damageStr + " regex found " +
+                                       bonus);
+                        }
                     }
                 }
-            }
-            else
-            {
-                // assume its fixed damage
-                var hopefullyNumber = damageStr.Split(' ').First();
-                if (!Int32.TryParse(hopefullyNumber, out dam.Bonus))
+                else
                 {
-                    errors.Add("Unable to parse bonus damage for non dice damage power " + power.Name + ". " + damageStr +
-                               " regex found " + hopefullyNumber);
+                    // assume its fixed damage
+                    var hopefullyNumber = damageStr.Split(' ').First();
+                    if (!Int32.TryParse(hopefullyNumber, out dam.Bonus))
+                    {
+                        errors.Add("Unable to parse bonus damage for a power with a damage entry that does not include a dice roll. " + power.Name + ". '" + damageStr +
+                                   "'.  This is probably a text non damage attack power, but you may need to tweak the damage entry");
+                    }
                 }
             }
 
@@ -310,15 +321,17 @@ namespace EncounterExport
                 var auras = new List<NameDescValue>();
                 foreach (var aura in input.Auras)
                 {
-                    var firstPart = aura.Details.Split(' ')[0];
-                    int dist = 0;
-                    if (Int32.TryParse(firstPart, out dist))
+                    var removeAuraWord = aura.Details.ToLower().Trim().StartsWith("aura") ? aura.Details.Trim().Substring(4) : aura.Details;
+                    var firstPart = Regex.Split( removeAuraWord.Trim(), @"[ :;]")[0];
+                 
+                    if (Int32.TryParse(firstPart, out var dist))
                     {
                         auras.Add(new NameDescValue(aura.Name, aura.Details, dist));
                     }
                     else
                     {
-                        errors.Add("Unable to parse distance for aura: " + aura.Name + ": " + aura.Details);
+                        auras.Add(new NameDescValue(aura.Name, aura.Details, 1));
+                        errors.Add("Unable to parse distance for aura: " + aura.Name + ": '" + aura.Details + "'");
                     }
                 }
 
@@ -340,20 +353,20 @@ namespace EncounterExport
         
         private ICreature FindCreature(Guid creature_id)
         {
-            foreach (Library library in  _MPApp.Libraries)
+            foreach (Library library in  _mpApp.Libraries)
             {
                 Creature creature = library.FindCreature(creature_id);
                 if (creature != null)
                     return (ICreature) creature;
             }
             
-            Creature creature2 = _MPApp.Project.Library.FindCreature(creature_id);
+            Creature creature2 = _mpApp.Project.Library.FindCreature(creature_id);
             if (creature2 != null)
                 return (ICreature) creature2;
-            CustomCreature customCreature = _MPApp.Project.FindCustomCreature(creature_id);
+            CustomCreature customCreature = _mpApp.Project.FindCustomCreature(creature_id);
             if (customCreature != null)
                 return (ICreature) customCreature;
-            NPC npc = _MPApp.Project.FindNPC(creature_id);
+            NPC npc = _mpApp.Project.FindNPC(creature_id);
             if (npc != null)
                 return (ICreature) npc;
             return (ICreature) null;

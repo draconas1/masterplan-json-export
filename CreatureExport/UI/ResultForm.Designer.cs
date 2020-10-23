@@ -34,45 +34,38 @@
             this.OutputBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.ErrorBox = new System.Windows.Forms.TextBox();
-            this.oneLinerBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Verdana", 9.75F, System.Drawing.FontStyle.Underline,
+            this.label1.Font = new System.Drawing.Font("Verdana", 12F, System.Drawing.FontStyle.Underline,
                 System.Drawing.GraphicsUnit.Point, ((byte) (0)));
-            this.label1.Location = new System.Drawing.Point(0, 76);
+            this.label1.Location = new System.Drawing.Point(20, 9);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(74, 16);
+            this.label1.Size = new System.Drawing.Size(65, 18);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Success :";
+            this.label1.Text = "Output";
             // 
             // btnClose
             // 
-            this.btnClose.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
-                                                       System.Windows.Forms.AnchorStyles.Left)));
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnClose.Location = new System.Drawing.Point(3, 658);
+            this.btnClose.Location = new System.Drawing.Point(304, 5);
             this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(71, 25);
+            this.btnClose.Size = new System.Drawing.Size(136, 25);
             this.btnClose.TabIndex = 6;
-            this.btnClose.Text = "Close";
+            this.btnClose.Text = "Close Window";
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
             // btnExport
             // 
-            this.btnExport.Anchor =
-                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
-                                                       System.Windows.Forms.AnchorStyles.Left)));
-            this.btnExport.Location = new System.Drawing.Point(3, 627);
+            this.btnExport.Location = new System.Drawing.Point(102, 5);
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(71, 25);
+            this.btnExport.Size = new System.Drawing.Size(184, 25);
             this.btnExport.TabIndex = 7;
-            this.btnExport.Text = "Export";
+            this.btnExport.Text = "Export to File";
             this.btnExport.UseVisualStyleBackColor = true;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
@@ -84,58 +77,48 @@
                                                          System.Windows.Forms.AnchorStyles.Bottom) |
                                                         System.Windows.Forms.AnchorStyles.Left) |
                                                        System.Windows.Forms.AnchorStyles.Right)));
-            this.OutputBox.Location = new System.Drawing.Point(97, 94);
+            this.OutputBox.Location = new System.Drawing.Point(1, 30);
             this.OutputBox.Multiline = true;
             this.OutputBox.Name = "OutputBox";
             this.OutputBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.OutputBox.Size = new System.Drawing.Size(1312, 603);
+            this.OutputBox.Size = new System.Drawing.Size(1250, 686);
             this.OutputBox.TabIndex = 8;
             this.OutputBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OutputBox_KeyDown);
             // 
             // label3
             // 
+            this.label3.Anchor =
+                ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
+                                                       System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Verdana", 9.75F, System.Drawing.FontStyle.Underline,
                 System.Drawing.GraphicsUnit.Point, ((byte) (0)));
-            this.label3.Location = new System.Drawing.Point(0, 11);
+            this.label3.Location = new System.Drawing.Point(1, 720);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(46, 16);
+            this.label3.Size = new System.Drawing.Size(355, 16);
             this.label3.TabIndex = 2;
-            this.label3.Text = "Errors";
+            this.label3.Text = "Issues that may need manual alteration of the JSON";
             // 
             // ErrorBox
             // 
             this.ErrorBox.Anchor =
-                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Top |
+                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Bottom |
                                                         System.Windows.Forms.AnchorStyles.Left) |
                                                        System.Windows.Forms.AnchorStyles.Right)));
-            this.ErrorBox.Location = new System.Drawing.Point(97, 5);
+            this.ErrorBox.Location = new System.Drawing.Point(1, 739);
             this.ErrorBox.Multiline = true;
             this.ErrorBox.Name = "ErrorBox";
             this.ErrorBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.ErrorBox.Size = new System.Drawing.Size(1312, 60);
+            this.ErrorBox.Size = new System.Drawing.Size(1250, 67);
             this.ErrorBox.TabIndex = 9;
-            // 
-            // oneLinerBox
-            // 
-            this.oneLinerBox.Anchor =
-                ((System.Windows.Forms.AnchorStyles) (((System.Windows.Forms.AnchorStyles.Top |
-                                                        System.Windows.Forms.AnchorStyles.Left) |
-                                                       System.Windows.Forms.AnchorStyles.Right)));
-            this.oneLinerBox.Location = new System.Drawing.Point(97, 67);
-            this.oneLinerBox.Name = "oneLinerBox";
-            this.oneLinerBox.Size = new System.Drawing.Size(1310, 22);
-            this.oneLinerBox.TabIndex = 10;
-            this.oneLinerBox.WordWrap = false;
             // 
             // ResultForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
-            this.ClientSize = new System.Drawing.Size(1409, 697);
-            this.Controls.Add(this.oneLinerBox);
+            this.ClientSize = new System.Drawing.Size(1253, 805);
             this.Controls.Add(this.ErrorBox);
             this.Controls.Add(this.OutputBox);
             this.Controls.Add(this.btnExport);
@@ -162,6 +145,5 @@
         private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.TextBox OutputBox;
         private System.Windows.Forms.TextBox ErrorBox;
-        private System.Windows.Forms.TextBox oneLinerBox;
     }
 }

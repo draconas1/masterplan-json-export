@@ -76,6 +76,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Roll20Api\Character-Ops.js" />
+    <Content Include="Roll20Api\Masterplan-Common.js" />
+    <Content Include="Roll20Api\Masterplan-Import.js" />
+    <Content Include="Roll20Api\Token-Ops.js" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

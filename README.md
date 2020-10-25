@@ -6,9 +6,9 @@ Written because I am running a 4th edition game and want to do my plannning in m
 
 Currently only does creatures, I may add trap functionality to it later if I start throwing a lot of traps at my players, for now they are few enough that i do them by hand.  
 
-As Masterplan is dead and gone, along with all its offial documentation, this project owes a huge amount to the blog:  http://paigew.wordpress.com/2010/11/01/creating-a-masterplan-add-on-part-1/ which is the last remaining documentation on how to write an AddIn and even more to the coder guillaumejay.  Guillaumejay replied in the comments to that blog post with a link to the sourcecode for the AddIn they wrote using it.  
+As Masterplan is sadly gone from the internet, along with all its offical documentation, this project owes a huge amount to the blog:  http://paigew.wordpress.com/2010/11/01/creating-a-masterplan-add-on-part-1/ which is the last remaining documentation on how to write an AddIn and even more to the coder guillaumejay.  Guillaumejay replied in the comments to that blog post with a link to the sourcecode for the AddIn they wrote using it.  
 
-This entire code was based off a copy of Guillaumejay's Compendium Import that they put here: https://github.com/guillaumejay/CompendiumImport which was a huge kickstarter in project setup and using the API, without which it would have taken me forever to get started.  So please - always post thank you comments to blogs with examples of how you used them!  1. it makes blog writers happy and 2, you never know who will find your code years later as just the thing they were after!
+This code was based off a copy of Guillaumejay's Compendium Import that they put here: https://github.com/guillaumejay/CompendiumImport which was a huge kickstarter in project setup and using the API, without which it would have taken me forever to get started.  So please - always post thank you comments to blogs with examples of how you used them!  1. it makes blog writers happy and 2, you never know who will find your code years later as just the thing they were after!
 
 # Installation
 

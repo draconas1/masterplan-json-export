@@ -39,7 +39,7 @@ Most of the scripts do nothing unless poked, however Token-Ops includes an token
 ## Use
 
 ### Importing 
-With the scripts installed, you need to create a handout called exactly: **Book About Badgers**.  In the GM notes of this handout, select "code" as the style and paste the json from the exporter.  It is important that you not put any other styling on, the importer will cope with no styles and "code" style, but will be unable to read the file if there are others.  For large proejcts I find there is a lag here while roll20 tries to sort out what you have pasted, this lag is less when using the "code" style, however if your project is massive you may have to export-import individual encounters.
+With the scripts installed, you need to create a handout called exactly: **Book About Badgers**  In the GM notes of this handout, select "code" as the style and paste the json from the exporter.  It is important that you not put any other styling on, the importer will cope with no styles and "code" style, but will be unable to read the file if there are others.  For large proejcts I find there is a lag here while roll20 tries to sort out what you have pasted, this lag is less when using the "code" style, however if your project is massive you may have to export-import individual encounters.
 
 The importer can then be run using **!import-masterplan** You will get some output in the chat about what is happening.  There is only 1 argument at this time **!import-masterplan debug** will turn on additional output in the chat and in the api console log.
 

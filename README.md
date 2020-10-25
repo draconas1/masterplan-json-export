@@ -41,7 +41,7 @@ Most of the scripts do nothing unless poked, however Token-Ops includes an token
 ### Importing 
 With the scripts installed, you need to create a handout called exactly: **Book About Badgers**  In the GM notes of this handout, select "code" as the style and paste the json from the exporter.  It is important that you not put any other styling on, the importer will cope with no styles and "code" style, but will be unable to read the file if there are others.  For large proejcts I find there is a lag here while roll20 tries to sort out what you have pasted, this lag is less when using the "code" style, however if your project is massive you may have to export-import individual encounters.
 
-The importer can then be run using **!import-masterplan** You will get some output in the chat about what is happening.  There is only 1 argument at this time **!import-masterplan debug** will turn on additional output in the chat and in the api console log.
+The importer can then be run using **!import-masterplan** You will get some output in the chat about what is happening.
 
 The importer will run and generate new creatures for you, it will not generate a creature if one exists with an identical name.
 
@@ -84,11 +84,14 @@ Requires a token selected, and will message you with the monster knowledge diffi
 #### !heal
 One for the players, spends a healing surge and increases hits by that amount.  **!heal [bonus]** where bonus is an optional bonus to add to the surge value (e.g. when a cleric provides a bonus with healing word), no need for a +, just put the bonus number.
 
+#### !mp-debug-on !mp-debug-off
+Turns debug output to chat and script log on or off.  
+
 ### Macros
 Here are some Macros I wrote that operate with the imported monsters:
      
 #### Monster Knowledge - Moderate DC:
-I have this as a token action and outputs to the chat if the players succeed a moderate knowledge DC for the monster.
+I have this as a token action to output to the chat if the players succeed a moderate knowledge DC for the monster.
 
 `&{template:default} {{name=@{selected|token_name}}} {{Role=@{selected|class}}}{{type=@{selected|race}}}`
 
@@ -106,6 +109,9 @@ Gives me a quick breakdown of HP/Max (temp HP) and defences.
 I store a save bonus for elite and solo monsters.
 
 `[[1d20cs>[[10 - (@{selected|savebonus}) ]]cf<[[ 9 - (@{selected|savebonus}) ]] + (@{selected|savebonus})]]`
+
+#### Heal with inputted bonus
+`!heal ?{Bonus|0}`
  
 ### Automatic Temp HP, Bloodied and Dead
 So I have this set up for my game, by assigning temp HP to the blue bar and HP to the red one, temp HP are deducted first whenever the creature takes damage.  (You may need to give it a second to work, as it needs to detect you reducing the hitpoints then perform the calculations then reset them).  Further if the token is bloodied it is tinted red, and if killed gets a big old cross.  You can disable this happening automatically by removing the line `on("change:token", TokenOps.soakDamageOnTempHP);` at the bottom of Token-Ops.js

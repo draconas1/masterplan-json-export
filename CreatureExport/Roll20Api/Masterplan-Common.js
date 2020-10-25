@@ -1,6 +1,8 @@
 var MasterplanCommon = MasterplanCommon || (function() {
     const scriptName = "Fluffiest Badger";
     const gm = "gm";
+    const debugOnCommand = "mp-debug-on"
+    const debugOffCommand = "mp-debug-off"
     let debug = false;
 
     const chatOutput = (msg, whisperTarget) => {
@@ -12,9 +14,9 @@ var MasterplanCommon = MasterplanCommon || (function() {
         chatOutput(msg, gm)
     }
 
-    const debugOutput = (msg) => {
+    const debugOutput = (msg, dest = gm) => {
         if (debug) {
-            chatOutput(msg, gm);
+            chatOutput(msg, dest);
             log(msg)
         }
     }
@@ -97,7 +99,23 @@ var MasterplanCommon = MasterplanCommon || (function() {
         return w;
     };
 
+    const handleMessage = (msg) => {
+        // Exit if not an api command
+        if (msg.type != "api") return;
+        // Split the message into command and argument(s)
+        let command = MasterplanCommon.parseCommand(msg).command
+
+        if (command === debugOnCommand) {
+            debug = true;
+        }
+
+        if (command === debugOffCommand) {
+            debug = false;
+        }
+    }
+
     return {
+        handleMessage,
         enableDebug,
         chatOutput,
         msgGM,
@@ -110,3 +128,5 @@ var MasterplanCommon = MasterplanCommon || (function() {
         parseCommand
     }
 }());
+
+on('chat:message', MasterplanCommon.handleMessage);

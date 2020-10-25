@@ -1,6 +1,7 @@
 var CharacterOps = CharacterOps || (function () {
     const knowledgeCommand = "know";
     const spendingHealingSurgeCommand = "heal"
+    const warforgedResolveCommand = "wf-resolve"
 
     let difficultClass = {
         1: {easy: 8, moderate: 12, hard: 19},
@@ -50,6 +51,18 @@ var CharacterOps = CharacterOps || (function () {
         });
     });
 
+    const loopOverSelected = (msg, func) => {
+        TokenOps.loopOverSelected(msg, function(token, index) {
+            let charId = token.get("represents")
+            if (charId) {
+                let character = getObj("character", charId)
+                func(token, character, index)
+            }
+            else {
+                MasterplanCommon.debugOutput(token.get("name") + " was not linked to a character", msg.who)
+            }
+        })
+    }
 
     const determineKnowledge = (msg) => {
         if (MasterplanCommon.shouldExitIfNotGM(msg)) {
@@ -61,36 +74,30 @@ var CharacterOps = CharacterOps || (function () {
         }
 
         let output = ""
-        _.each(msg.selected, function(selected) {
-            let token = getObj("graphic", selected._id);
-            if (token.get("subtype") === "token") {
-                let charId = token.get("represents")
-                if (charId) {
-                    let character = getObj("character", charId)
-                    let level = getAttrByName(charId, "level")
-                    let race = getAttrByName(charId, "race")
+        loopOverSelected(msg, function(token, character) {
+            let charId = character.id
+            let level = getAttrByName(charId, "level")
+            let race = getAttrByName(charId, "race")
 
-                    let knowledge = undefined
-                    if (race) {
-                        let raceLower = race.toLowerCase();
-                        knowledge = _.find(_.keys(knowledgesLookup), function(creatureType) {
-                            return raceLower.includes(creatureType);
-                        });
-                        if (knowledge) {
-                            knowledge = knowledgesLookup[knowledge];
-                        }
-                        else {
-                            knowledge = race;
-                        }
-                    }
+            let knowledge = undefined
+            if (race) {
+                let raceLower = race.toLowerCase();
+                knowledge = _.find(_.keys(knowledgesLookup), function(creatureType) {
+                    return raceLower.includes(creatureType);
+                });
+                if (knowledge) {
+                    knowledge = knowledgesLookup[knowledge];
+                }
+                else {
+                    knowledge = race;
+                }
+            }
 
-                    let name = character.get("name")
-                    if (level) {
-                        let diffData = difficultClass["" + level]
-                        if (diffData) {
-                            output += "{{" + name + " = " + diffData.moderate +  "/" + diffData.hard + (knowledge !== undefined ? " (" + knowledge + ")" : "") + "}}"
-                        }
-                    }
+            let name = character.get("name")
+            if (level) {
+                let diffData = difficultClass[level]
+                if (diffData) {
+                    output += "{{" + name + " = " + diffData.moderate +  "/" + diffData.hard + (knowledge !== undefined ? " (" + knowledge + ")" : "") + "}}"
                 }
             }
         });
@@ -112,47 +119,62 @@ var CharacterOps = CharacterOps || (function () {
             }
         }
 
-        _.each(msg.selected, function(selected) {
-            let token = getObj("graphic", selected._id);
-            if (token.get("subtype") === "token") {
-                let charid = token.get("represents")
-                if (charid) {
-                    let character = getObj("character", charid)
-                    let name = character.get("name")
-                    let surgesAttrList = findObjs({ type: 'attribute', characterid: charid, name: "surges"})
-                    let surgeValue = getAttrByName(charid, "surge-value")
-                    if (surgesAttrList.length > 0 && surgeValue) {
-                        let surgesAttr = surgesAttrList[0]
-                        let surges = surgesAttr.get("current")
-                        if (surges > 0) {
-                            let hp = TokenOps.value(token, HP_BAR, false)
-                            let hpMax = TokenOps.value(token, HP_BAR, true)
-                            MasterplanCommon.debugOutput(name + ": HP/Max, Surges/Surge Value " + hp + "/" + hpMax + ", " + surges + "/" + surgeValue)
-                            if (hp < hpMax) {
-                                // + is concatenate as soon a a string gets involved
-                                let surgeInt = parseInt(surgeValue)
-                                let hpInt = parseInt(hp)
-                                let newHP = Math.min(hpInt + surgeInt + bonus, hpMax)
-                                let newSurges = surgeInt - 1
+        loopOverSelected(msg, function(token, character) {
+            let charId = character.id
+            let name = character.get("name")
+            let surgesAttrList = findObjs({ type: 'attribute', characterid: charId, name: "surges"})
+            let surgeValue = getAttrByName(charId, "surge-value")
+            if (surgesAttrList.length > 0 && surgeValue) {
+                let surgesAttr = surgesAttrList[0]
+                let surges = surgesAttr.get("current")
+                if (surges > 0) {
+                    let hp = TokenOps.value(token, HP_BAR, false)
+                    let hpMax = TokenOps.value(token, HP_BAR, true)
+                    MasterplanCommon.debugOutput(name + ": HP/Max, Surges/Surge Value " + hp + "/" + hpMax + ", " + surges + "/" + surgeValue)
+                    if (hp < hpMax) {
+                        // + is concatenate as soon a a string gets involved
+                        let surgeInt = parseInt(surgeValue)
+                        let hpInt = parseInt(hp)
+                        let newHP = Math.min(hpInt + surgeInt + bonus, hpMax)
+                        let newSurges = surgeInt - 1
 
-                                MasterplanCommon.debugOutput(name + ": New HP " + newHP)
-                                token.set(HP_BAR_VALUE, newHP)
-                                surgesAttr.set("current", newSurges)
-                                MasterplanCommon.chatOutput(name + " is now at " + newHP + " with " + newSurges + " healing surges remaining", msg.who)
-                                TokenOps.applyBloodiedDeadEffect(token)
-                            }
-                            else {
-                                MasterplanCommon.chatOutput(name + " is at max HP", msg.who)
-                            }
-                        }
-                        else {
-                            MasterplanCommon.chatOutput(name + " has no healing surges remaining", msg.who)
-                        }
+                        MasterplanCommon.debugOutput(name + ": New HP " + newHP)
+                        token.set(HP_BAR_VALUE, newHP)
+                        surgesAttr.set("current", newSurges)
+                        MasterplanCommon.chatOutput(name + " is now at " + newHP + " with " + newSurges + " healing surges remaining", msg.who)
+                        TokenOps.applyBloodiedDeadEffect(token)
                     }
                     else {
-                        MasterplanCommon.chatOutput("Could not find one of 'surges' or 'surge-value' for " + name, msg.who)
+                        MasterplanCommon.chatOutput(name + " is at max HP", msg.who)
                     }
                 }
+                else {
+                    MasterplanCommon.chatOutput(name + " has no healing surges remaining", msg.who)
+                }
+            }
+            else {
+                MasterplanCommon.chatOutput("Could not find one of 'surges' or 'surge-value' for " + name, msg.who)
+            }
+        });
+    }
+
+    const warforgeResolve = (msg) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+
+        loopOverSelected(msg, function(token, character) {
+            let hp = TokenOps.value(token, HP_BAR, false)
+            let hpMax = TokenOps.value(token, HP_BAR, true)
+            let tempHP = TokenOps.value(token, TMP_HP_BAR, false)
+            let level = parseInt(getAttrByName(character.id, "level"))
+            let gains = 3 + Math.floor(level/2)
+            if (tempHP < gains) {
+                token.set(TMP_HP_BAR_VALUE, gains)
+            }
+            if (hp <= (hpMax / 2)) {
+                let newHp = parseInt(hp) + gains
+                token.set(HP_BAR_VALUE, Math.min(newHp, hpMax))
             }
         });
     }
@@ -171,11 +193,16 @@ var CharacterOps = CharacterOps || (function () {
         if (command === spendingHealingSurgeCommand) {
             spendHealingSurge(msg, commandInfo);
         }
+
+        if (command === warforgedResolveCommand) {
+            warforgeResolve(msg);
+        }
     }
 
 
     return {
-        handleMessage
+        handleMessage,
+        loopOverSelected
     };
 })();
 

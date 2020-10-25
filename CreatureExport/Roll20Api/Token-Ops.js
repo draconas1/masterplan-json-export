@@ -17,6 +17,21 @@ var TokenOps = TokenOps || (function() {
         reset["status_" + colour] = false
     })
 
+    const loopOverSelected = (msg, func) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+        _.each(msg.selected, function(selected, index) {
+            let token = getObj("graphic", selected._id);
+            if (token.get("subtype") === "token") {
+                func(token, index)
+            }
+            else {
+                MasterplanCommon.debugOutput("Skipping selected object that was not a token " + JSON.stringify(token), msg.who)
+            }
+        })
+    }
+    
     const value = (object, bar, max = false) => {
         let suffix = max ? "_max" : "_value"
         return object.get(bar + suffix);
@@ -42,12 +57,8 @@ var TokenOps = TokenOps || (function() {
             return;
         }
         let character = sourceList[0];
-        _.each(msg.selected, function(selected) {
-            let token = getObj("graphic", selected._id);
-            if (token.get("subtype") !== "token") {
-                MasterplanCommon.msgGM( "Ohes Noes!  You snuck a not-token past me!  I can't assign it to a character sheet so I'm moving onto the next one. It's called: " + token.get("name"));
-            }
-            else if (token.get("represents")) {
+        loopOverSelected(msg, function(token) {
+            if (token.get("represents")) {
                 MasterplanCommon.msgGM( "Ohes Noes! " + token.get("name") + " already represents character: " + token.get("represents") + " I'm not changing it");
             }
             else {
@@ -104,26 +115,20 @@ var TokenOps = TokenOps || (function() {
             return;
         }
 
-        _.each(msg.selected, function(selected, index) {
-            let token = getObj("graphic", selected._id);
-            if (token.get("subtype") !== "token") {
-                MasterplanCommon.msgGM( "Ohes Noes!  You snuck a not-token past me!  I can't assign it to a character sheet so I'm moving onto the next one. It's called: " + token.get("name"));
+        loopOverSelected(msg, function(token, index) {
+            token.set(reset);
+            // if multiple enemies, tag them with coloured blobs for ease of identification
+            // if more than 7 (you monster!) then start numbering them as well.
+            let iconIndex = index % colours.length;
+            let numberIndex = Math.floor(index / colours.length) + 1;
+            let colour = colours[iconIndex];
+            if (numberIndex > 1) {
+                token.set("status_" + colour, numberIndex);
+                //token.set("name", name + " (" + colour + " " + numberIndex + ")");
             }
             else {
-                token.set(reset);
-                // if multiple enemies, tag them with coloured blobs for ease of identification
-                // if more than 7 (you monster!) then start numbering them as well.
-                let iconIndex = index % colours.length;
-                let numberIndex = Math.floor(index / colours.length) + 1;
-                let colour = colours[iconIndex];
-                if (numberIndex > 1) {
-                    token.set("status_" + colour, numberIndex);
-                    //token.set("name", name + " (" + colour + " " + numberIndex + ")");
-                }
-                else {
-                    token.set("status_" + colour, true);
-                    //token.set("name", name + " (" + colour + ")")
-                }
+                token.set("status_" + colour, true);
+                //token.set("name", name + " (" + colour + ")")
             }
         });
     }
@@ -135,20 +140,20 @@ var TokenOps = TokenOps || (function() {
         }
         let prevHpVal = parseInt(prevHpValStr);
         if (isNaN(prevHpVal)) {
-            log("WARN: Previous bar " + HP_BAR + " does not contain a number: '" + prevHpValStr + "'");
+            MasterplanCommon.debugOutput("WARN: Previous bar " + HP_BAR + " does not contain a number: '" + prevHpValStr + "'");
             return;
         }
 
         let hpValStr = obj.get(HP_BAR_VALUE);
         let hpVal = parseInt(hpValStr);
         if (isNaN(hpVal)) {
-            log("WARN: Bar " + HP_BAR + " does not contain a number: '" + hpValStr + "'");
+            MasterplanCommon.debugOutput("WARN: Bar " + HP_BAR + " does not contain a number: '" + hpValStr + "'");
             return;
         }
 
         if (prevHpVal > hpVal) {
             let tmpHpVal = parseInt(obj.get(TMP_HP_BAR_VALUE));
-            log(prevHpVal + " - " + hpVal + " - " + tmpHpVal);
+            MasterplanCommon.debugLog(prevHpVal + " - " + hpVal + " - " + tmpHpVal);
             if (!isNaN(tmpHpVal)) {
                 let hpChange = prevHpVal - hpVal;
                 let remainingTmp = tmpHpVal - hpChange;
@@ -210,7 +215,8 @@ var TokenOps = TokenOps || (function() {
         handleMessage,
         value,
         soakDamageOnTempHP,
-        applyBloodiedDeadEffect
+        applyBloodiedDeadEffect,
+        loopOverSelected
     };
 })();
 

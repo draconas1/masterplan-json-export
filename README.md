@@ -55,6 +55,8 @@ The importer will run and generate new creatures for you, it will not generate a
 * The abilities section gets macro links to all of the monsters powers that are set up to be token-actions
 * A number of other hidden fields used by the scripts below
 
+Note that attack powers do not use the Inventory-Weapons or any of the easily inputable power fields, as monster powers are defined at specific to-hit and damages it was easier just to write the entire equation into the power macro.  Also ment using fewer calculated fields which reduces some of the complexity burden
+
 ### Assigning
 With one or more tokens selected you can use the command from Token-Ops: **!assign-token CHARACTER-NAME** where **CHARACTER-NAME** is the exact name of a character handout.  
 

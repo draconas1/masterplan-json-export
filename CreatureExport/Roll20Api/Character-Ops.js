@@ -130,18 +130,17 @@ var CharacterOps = CharacterOps || (function () {
                 if (surges > 0) {
                     let hp = TokenOps.value(token, HP_BAR, false)
                     let hpMax = TokenOps.value(token, HP_BAR, true)
-                    MasterplanCommon.debugOutput(name + ": HP/Max, Surges/Surge Value " + hp + "/" + hpMax + ", " + surges + "/" + surgeValue)
+                    MasterplanCommon.debugOutput(name + ": HP/Max, Surges/Surge Value " + hp + "/" + hpMax + ", " + surges + "/" + surgeValue, msg.who)
                     if (hp < hpMax) {
                         // + is concatenate as soon a a string gets involved
                         let surgeInt = parseInt(surgeValue)
                         let hpInt = parseInt(hp)
                         let newHP = Math.min(hpInt + surgeInt + bonus, hpMax)
-                        let newSurges = surgeInt - 1
+                        let newSurges = surges - 1
 
-                        MasterplanCommon.debugOutput(name + ": New HP " + newHP)
                         token.set(HP_BAR_VALUE, newHP)
                         surgesAttr.set("current", newSurges)
-                        MasterplanCommon.chatOutput(name + " is now at " + newHP + " with " + newSurges + " healing surges remaining", msg.who)
+                        MasterplanCommon.chatOutput(name + " is now at " + newHP + "HP with " + newSurges + " healing surges remaining", msg.who)
                         TokenOps.applyBloodiedDeadEffect(token)
                     }
                     else {
@@ -175,6 +174,7 @@ var CharacterOps = CharacterOps || (function () {
             if (hp <= (hpMax / 2)) {
                 let newHp = parseInt(hp) + gains
                 token.set(HP_BAR_VALUE, Math.min(newHp, hpMax))
+                TokenOps.applyBloodiedDeadEffect(token)
             }
         });
     }

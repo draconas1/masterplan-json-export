@@ -2,6 +2,8 @@ var CharacterOps = CharacterOps || (function () {
     const knowledgeCommand = "know";
     const spendingHealingSurgeCommand = "heal"
     const warforgedResolveCommand = "wf-resolve"
+    const longRestCommand = "longrest"
+    const shortRestCommand = "shortrest"
 
     let difficultClass = {
         1: {easy: 8, moderate: 12, hard: 19},
@@ -178,6 +180,136 @@ var CharacterOps = CharacterOps || (function () {
             }
         });
     }
+    
+    const findAttr = (charId, attrName) => {
+        let result = findObjs({ type: 'attribute', characterid: charId, name: attrName})
+        if (result.length > 0) {
+            return result[0]
+        }
+        else return undefined
+    }
+
+    const setAttr = (charId, attr, value) => {
+        MasterplanCommon.debugLog(attr + " setting")
+        let currentAttr = findAttr(charId, attr)
+        if (currentAttr) {
+            MasterplanCommon.debugLog(attr + " found, setting now")
+            currentAttr.set("current", value)
+            return currentAttr;
+        }
+        else {
+            MasterplanCommon.debugLog(attr + " found, setting now")
+            return createObj("attribute", {
+                name: attr,
+                current: value,
+                characterid: charId
+            });
+        }
+    }
+
+    const longrest = (msg) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+
+        loopOverSelected(msg, function(token, character) {
+            let charId = character.id
+            let name = character.get("name")
+            // Sort HP via the token
+            let hpMax = TokenOps.value(token, HP_BAR, true)
+            MasterplanCommon.debugOutput(name + ": resetting HP to " + hpMax + " and temp hp to 0", msg.who)
+            token.set(HP_BAR_VALUE, hpMax)
+            token.set(TMP_HP_BAR_VALUE, 0)            
+
+            // reset surges
+            let surgesAttr = findAttr(charId, "surges")
+            let surgesMax = getAttrByName(character.id, 'surges', 'max')
+            if (surgesAttr && surgesMax) {
+                MasterplanCommon.debugOutput(name + ": resetting surges to " + surgesMax, msg.who)
+                surgesAttr.set("current", surgesMax)
+            }
+            else {
+                MasterplanCommon.debugOutput(name + ": Can't reset healing surges, could not find one of 'surges' or 'surges|max'", msg.who)
+            }
+        
+            //reset action points
+            MasterplanCommon.debugOutput(name + ": Action points reset to 1", msg.who)
+            setAttr(charId, "action-points", 1);
+            
+            // reset powers
+            let i = 1;
+            let skipped = 0
+            let final = 1;
+            MasterplanCommon.debugOutput(name + ": Resetting powers", msg.who)
+            for (i = 1; i <= 99; i++) {
+                let powerExistsAttr = findAttr(charId, "power-" + i + "-name")
+                if (powerExistsAttr) {
+                    MasterplanCommon.debugLog(name + ": power " + i + " exists")
+                    setAttr(charId, "power-" + i + "-used", 0);
+                    skipped = 0;
+                }
+                else {
+                    MasterplanCommon.debugLog(name + ": power " + i + " does not exist")
+                    skipped++;    
+                }
+                if (skipped > 3) {
+                    MasterplanCommon.debugLog(name + ": at index " + i + " have skipped 3 powers, so giving up")
+                    final = i-3;
+                    break;
+                }
+            }
+            TokenOps.applyBloodiedDeadEffect(token)
+            MasterplanCommon.chatOutput(character.get("name") + " has had a long rest, I reset powers up to " + final, msg.who)
+        });
+    }
+
+
+    const shortRest = (msg) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+
+        loopOverSelected(msg, function(token, character) {
+            let charId = character.id
+            let name = character.get("name")
+            // Sort HP via the token
+            token.set(TMP_HP_BAR_VALUE, 0)
+
+            // reset surges
+           
+            // reset powers
+            let i = 1;
+            let skipped = 0
+            let final = 1;
+            MasterplanCommon.debugOutput(name + ": Resetting powers", msg.who)
+            for (i = 1; i <= 99; i++) {
+                let powerExistsAttr = findAttr(charId, "power-" + i + "-name")
+                if (powerExistsAttr) {
+                    MasterplanCommon.debugLog(name + ": power " + i + " exists")
+                    let powerType = getAttrByName(charId, "power-" + i + "-useage")
+                    if (powerType === "Encounter") {
+                        MasterplanCommon.debugLog(name + ": power " + i + " is an encounter power - resetting")
+                        setAttr(charId, "power-" + i + "-used", 0);
+                    }
+                    else {
+                        MasterplanCommon.debugLog(name + ": skipping power " + i + " as is not an encounter power")
+                    }
+                    skipped = 0;
+                }
+                else {
+                    MasterplanCommon.debugLog(name + ": power " + i + " does not exist")
+                    skipped++;
+                }
+                if (skipped > 3) {
+                    MasterplanCommon.debugLog(name + ": at index " + i + " have skipped 3 powers, so giving up")
+                    final = i-3;
+                    break;
+                }
+            }
+            TokenOps.applyBloodiedDeadEffect(token)
+            MasterplanCommon.chatOutput(character.get("name") + " has had a short rest, I reset powers up to " + final, msg.who)
+        });
+    }
 
     const handleMessage = (msg) => {
         // Exit if not an api command
@@ -196,6 +328,14 @@ var CharacterOps = CharacterOps || (function () {
 
         if (command === warforgedResolveCommand) {
             warforgeResolve(msg);
+        }
+        
+        if (command === longRestCommand) {
+            longrest(msg);
+        }
+        
+        if (command == shortRestCommand) {
+            shortRest(msg)
         }
     }
 

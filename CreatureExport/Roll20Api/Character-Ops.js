@@ -2,10 +2,11 @@ var CharacterOps = CharacterOps || (function () {
     const knowledgeCommand = "know";
     const spendingHealingSurgeCommand = "heal"
     const warforgedResolveCommand = "wf-resolve"
-    const longRestCommand = "longrest"
-    const shortRestCommand = "shortrest"
+    const longRestCommand = "long-rest"
+    const shortRestCommand = "short-rest"
+    const usePowerCommand = "use-power"
 
-    let difficultClass = {
+    const difficultClass = {
         1: {easy: 8, moderate: 12, hard: 19},
         2: {easy: 9, moderate: 13, hard: 20},
         3: {easy: 9, moderate: 13, hard: 21},
@@ -207,6 +208,24 @@ var CharacterOps = CharacterOps || (function () {
         }
     }
 
+    const usePower = (msg, commandInfo) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+
+        loopOverSelected(msg, function(token, character) {
+            _.each(commandInfo.options, function(param) {
+                let powerIndex = parseInt(param)
+                if (isNaN(powerIndex)) {
+                    MasterplanCommon.chatOutput("I could not parse '" + param + "' into a number", msg.who)
+                }
+                else {
+                    setAttr(character.id, "power-" + powerIndex + "-used", 1);
+                }
+            })
+        });
+    }
+    
     const longrest = (msg) => {
         if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
             return;
@@ -334,8 +353,12 @@ var CharacterOps = CharacterOps || (function () {
             longrest(msg);
         }
         
-        if (command == shortRestCommand) {
+        if (command === shortRestCommand) {
             shortRest(msg)
+        }
+        
+        if(command === usePowerCommand) {
+            usePower(msg, commandInfo)
         }
     }
 

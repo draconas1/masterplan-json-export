@@ -16,7 +16,7 @@ namespace EncounterExport
 
         public bool Available => _MPApp.Project != null;
 
-        public string Description => "Export the creatures of the current project as json";
+        public string Description => "Export the creatures and traps of the current project as json";
 
         public string Name => "Export Project to Json";
 

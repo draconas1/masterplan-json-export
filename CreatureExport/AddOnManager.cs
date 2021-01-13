@@ -15,23 +15,14 @@ namespace EncounterExport
         /// <summary>
         /// Gets the list of combat commands supplied by the add-in.
         /// </summary>
-        public List<ICommand> CombatCommands
-        {
-            get { return new List<ICommand>(); }
-        }
+        public List<ICommand> CombatCommands => new List<ICommand>();
 
         /// <summary>
         /// Gets the list of commands supplied by the add-in.
         /// </summary>
-        public List<ICommand> Commands
-        {
-            get { return _commands; }
-        }
+        public List<ICommand> Commands => _commands;
 
-        public string Description
-        {
-            get { return "Add-in used to import data from compendium"; }
-        }
+        public string Description => "Add-in used to export data to json for VTT use";
 
         public bool Initialise(IApplication app)
         {
@@ -44,6 +35,7 @@ namespace EncounterExport
                 _commands = new List<ICommand>();
                 _commands.Add(new ExportProjectCommand(app));
                 _commands.Add(new ExportEncounterCommand(app));
+                _commands.Add(new ExportEncounterAndSubsCommand(app));
                 AppDomain currentDomain = AppDomain.CurrentDomain;
                 currentDomain.AssemblyResolve += new ResolveEventHandler(LoadFromSameFolder);
             }

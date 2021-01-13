@@ -5,11 +5,11 @@ using Masterplan.Extensibility;
 
 namespace EncounterExport
 {
-    public class ExportEncounterCommand : ICommand,IDisposable
+    public class ExportEncounterAndSubsCommand : ICommand,IDisposable
     {
         private readonly IApplication _MPApp;
 
-        public ExportEncounterCommand(IApplication mpApp)
+        public ExportEncounterAndSubsCommand(IApplication mpApp)
         {
             _MPApp = mpApp;
         }
@@ -18,9 +18,9 @@ namespace EncounterExport
 
         public bool Available => _MPApp.Project != null && (_MPApp.SelectedPoint?.Element is Encounter || _MPApp.SelectedPoint?.Element is TrapElement);
 
-        public string Description => "Export the creatures and traps of the currently selected encounter project as json";
+        public string Description => "Export the creatures and traps of the currently selected encounter and all sub-encounters as json";
 
-        public string Name => "Export Encounter to Json";
+        public string Name => "Export Encounter and All Sub Plots to Json";
 
         /// <summary>
         /// Executes this instance.
@@ -28,7 +28,7 @@ namespace EncounterExport
         public void Execute()
         {
             var list = new List<PlotPoint>();
-            list.Add(_MPApp.SelectedPoint);
+            list.AddRange(_MPApp.SelectedPoint.Subtree); // includes current point
             new JSONBuilder(_MPApp).CreateEncounterJson(list);
         }
         
@@ -36,8 +36,6 @@ namespace EncounterExport
         {
             GC.SuppressFinalize(this);
         }
-
-       
     }
 }
 

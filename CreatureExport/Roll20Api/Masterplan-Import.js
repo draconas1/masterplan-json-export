@@ -185,7 +185,6 @@ var MasterplanImport = MasterplanImport || (function() {
                 powerDesc += "(" + action.Trigger + ") ";
             }
 
-
             if (power.Attack) {
                 powerAttr("def", mapDefence(power.Attack.Defence));
 
@@ -198,7 +197,7 @@ var MasterplanImport = MasterplanImport || (function() {
                 if (powerHolder.Damage) {
                     let damage = powerHolder.Damage;
                     let critDamage = damage.NumDice * damage.DiceSize + damage.Bonus;
-                    macroStr += (powerHolder.Damage) ? "{{critical=" + critDamage + "}}" : "";
+                    macroStr += "{{critical=" + critDamage + "}}";
                 }
             }
             else {
@@ -235,6 +234,157 @@ var MasterplanImport = MasterplanImport || (function() {
         }
 
         charAttr("power-knowledge", knowledgeDesc)
+
+        //settings
+        charAttr("init-tie", 0.01)
+    }
+
+    // Main Trap sheet populator function
+    const createTrapSheet = (encounterName, trapData, characterSheet) => {
+        let id = characterSheet.get('id');
+        let charAttr = (attr, value) => addAttribute(id, attr, value);
+        let nullableAttr = (attr, value) => {if (value && value !== "" && !isNaN(value)) {charAttr(attr, value)}};
+
+        // can't access tags in the api, so have to make my own
+        charAttr("chr-type", "trap")
+        charAttr("encounter", encounterName)
+        
+        charAttr("level", trapData.Level);
+        charAttr("class", trapData.Role);
+
+        // so some traps have defences and HP, and it is possible that i will manually edit the json
+        // more likely that i will just manually edit the sheet, but here for completeness
+        // the parser will automatically set them based off the description provided the description is written int his format:
+        // HP=123
+        // AC=123
+        // other=123
+        // fort=123
+        // ref=123
+        // will=123
+        // 
+        // HP=123 must be the first line of the description to trigger this
+        // all other lines optional. other=123 will set all non-ac defences that are not set more specifically        
+        let halfLevel = Math.floor(trapData.Level / 2);
+        let tenHalf = 10 + halfLevel;
+        if (trapData.HP) {
+            addAttributeWithMax(id, "hp", trapData.HP);
+            charAttr("hp-bloodied", Math.floor(trapData.HP / 2));
+        }
+        nullableAttr("ac-class", trapData.AC - tenHalf);
+        nullableAttr("fort-class", trapData.Fortitude - tenHalf);
+        nullableAttr("ref-class", trapData.Reflex - tenHalf);
+        nullableAttr("will-class", trapData.Will - tenHalf);
+        nullableAttr("ac-raw", trapData.AC)
+        
+        // initative
+        let sheetCalculatedInit = halfLevel
+        charAttr("init-misc", trapData.Initiative - sheetCalculatedInit);
+       
+        let knowledgeDesc = ""
+        let templateDesc = (key, value) => "{{" + key + "=" + value + "}}"
+
+        charAttr("resistances", trapData.Details);
+        charAttr("lang", trapData.Trigger);
+
+        charAttr("trap-details", templateDesc("Details", trapData.Details))
+        charAttr("trap-trigger", templateDesc("Trigger", trapData.Trigger))
+        
+        createObj("ability", {
+            name: "Trap Details",
+            description: "",
+            action: "/w gm &{template:default} {{name=" + trapData.Name + "}} @{selected|trap-details} @{selected|trap-trigger}",
+            istokenaction: true,
+            characterid: id
+        });
+        
+        // skills
+        let trapSkills = "";
+        _.each(trapData.Skills, function(skill, index) {
+            trapSkills += templateDesc(skill.Name + " " + skill.Bonus, skill.Desc)
+            let traitAttr = "**" + skill.Name + "**: DC " + skill.Bonus + ": " + skill.Desc;
+            charAttr("repeating_race-feats_" + index + "_race-feat", traitAttr);
+        })
+        charAttr("trap-skills", trapSkills);
+        createObj("ability", {
+            name: "Relevant Skills",
+            description: "",
+            action: "/w gm &{template:default} {{name=Relevant Skills}} @{selected|trap-skills}",
+            istokenaction: true,
+            characterid: id
+        });
+        
+        //countermeasures
+        let trapCountermeasures = ""
+        _.each(trapData.Countermeasures, function(countermeasure, index) {
+            charAttr("repeating_class-feats_" + index + "_class-feat", countermeasure);
+            trapCountermeasures += templateDesc(index + 1, countermeasure)
+        });
+        charAttr("trap-counters", trapCountermeasures);
+        createObj("ability", {
+            name: "Countermeasures",
+            description: "",
+            action: "/w gm &{template:default} {{name=Countermeasures}} @{selected|trap-counters}",
+            istokenaction: true,
+            characterid: id
+        });
+
+        // Attacks
+        _.each(trapData.Attacks, function(attackHolder, index) {
+            let powerDesc = "";
+            let power = attackHolder.Attack;
+            let powerAttr = (attr, value) => charAttr("power-" + (index + 1) + "-"  + attr, value);
+            powerAttr("toggle", "on");
+            powerAttr("name", power.Name);
+
+            // action must exist else it goes into traits
+            let action = power.Action;
+            powerAttr("action", mapAction(action.Action));
+            powerAttr("useage", "At-Will");
+            powerAttr("range", power.Range);
+
+            powerDesc += mapAction(action.Action) + ", " + "At-Will" + ", ";
+
+            let macroStr = "&{template:dnd4epower} {{atwill=1}}"
+           
+            macroStr += "{{name=" + power.Name + "}}";
+            macroStr += "{{action=" + mapAction(action.Action) +" ♦ }}";
+
+            if (power.Attack) {
+                powerAttr("def", mapDefence(power.Attack.Defence));
+
+                macroStr += "{{range=" + power.Range +"}}"
+                macroStr += "{{target=" + power.Target +"}}"
+                macroStr += "{{attack=[[1d20+" + power.Attack.Bonus +"]] vs **" + power.Attack.Defence + "**}}";
+                macroStr += "{{damage=" + power.OnHit + "}}";
+                macroStr += "{{miss=" + power.OnMiss + "}}";
+                macroStr += "{{effect=" + power.Effect + "}}";
+
+                powerDesc += power.Range + ", " + power.Attack.Bonus + " vs " + power.Attack.Defence
+                // note need to go back to the holder
+                if (attackHolder.Damage) {
+                    let damage = attackHolder.Damage;
+                    let critDamage = damage.NumDice * damage.DiceSize + damage.Bonus;
+                    macroStr += "{{critical=" + critDamage + "}}";
+                }
+            }
+            else {
+                if (power.Effect || power.Effect != "") {
+                    macroStr += "{{effect=" + power.Effect +"}}";
+                    powerDesc += power.Effect;
+                }
+            }
+
+
+            powerAttr("macro", macroStr);
+            createObj("ability", {
+                name: power.Name,
+                description: "",
+                action: "%{selected|-power-" + (index + 1) + "}",
+                istokenaction: true,
+                characterid: id
+            });
+            knowledgeDesc += templateDesc(power.Name, powerDesc)
+        });
 
         //settings
         charAttr("init-tie", 0.01)
@@ -291,6 +441,25 @@ var MasterplanImport = MasterplanImport || (function() {
                                 MasterplanCommon.msgGM( "I created " + creatureData.Name);
                             }
                         })
+                        if (encounter.Traps) {
+                            _.each(encounter.Traps, function(trapData) {
+                                // see if the creature already exists
+                                MasterplanCommon.debugOutput("Checking for: " + trapData.Name)
+                                let sourceList = findObjs({ type: 'character', name: trapData.Name });
+                                if (sourceList.length > 0) {
+                                    MasterplanCommon.msgGM( trapData.Name + " already exists, so I won't be recreating it");
+                                }
+                                else {
+                                    MasterplanCommon.debugOutput("Creating: " + trapData.Name)
+                                    let creature = createObj('character', {
+                                        name: trapData.Name,
+                                        archived: false
+                                    });
+                                    createTrapSheet(encounter.Name, trapData, creature);
+                                    MasterplanCommon.msgGM( "I created " + trapData.Name);
+                                }
+                            })
+                        }
                     });
                     MasterplanCommon.chatOutput("My book was full of things, but I don't think they were very nice.  Good luck!");
                 }

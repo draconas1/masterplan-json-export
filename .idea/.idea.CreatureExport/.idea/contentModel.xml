@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Dev\projects\masterplan-json-export" t="IncludeFlat">
+    <e p="C:\Users\Draconas\AppData\local\JetBrains\Rider2020.3\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\Draconas\AppData\local\JetBrains\Rider2020.3\resharper-host\local\Transient\Rider\v203\SolutionCaches\_CreatureExport.1151852255.00" t="ExcludeRecursive" />
+    <e p="C:\Users\Draconas\AppData\Roaming\JetBrains\Rider2020.3\consoles\db" t="IncludeRecursive" />
+    <e p="C:\Users\Draconas\AppData\Roaming\JetBrains\Rider2020.3\extensions" t="IncludeRecursive" />
+    <e p="C:\Users\Draconas\Documents\Dev\masterplan-json-export" t="IncludeFlat">
       <e p=".nuget" t="Include">
         <e p="NuGet.Config" t="Include" />
         <e p="NuGet.exe" t="Include" />
@@ -10,7 +14,10 @@
       <e p="CreatureExport" t="IncludeRecursive">
         <e p="AddOnManager.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="Common.cs" t="Include" />
         <e p="CreatureExport.csproj" t="IncludeRecursive" />
+        <e p="CreatureHelper.cs" t="Include" />
+        <e p="ExportEncounterAndSubsCommand.cs" t="Include" />
         <e p="ExportEncounterCommand.cs" t="Include" />
         <e p="ExportProjectCommand.cs" t="Include" />
         <e p="JSONBuilder.cs" t="Include" />
@@ -21,10 +28,12 @@
         </e>
         <e p="Roll20Api" t="Include">
           <e p="Character-Ops.js" t="Include" />
+          <e p="condition config.json" t="Include" />
           <e p="Masterplan-Common.js" t="Include" />
           <e p="Masterplan-Import.js" t="Include" />
           <e p="Token-Ops.js" t="Include" />
         </e>
+        <e p="TrapHelper.cs" t="Include" />
         <e p="UI" t="Include">
           <e p="ResultForm.cs" t="Include" />
           <e p="ResultForm.Designer.cs" t="Include" />
@@ -35,7 +44,5 @@
       <e p="packages" t="ExcludeRecursive" />
       <e p="Solution Items" t="Include" />
     </e>
-    <e p="C:\Users\Draconas\AppData\local\JetBrains\Rider2020.2\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\Draconas\AppData\local\JetBrains\Rider2020.2\resharper-host\local\Transient\Rider\v202\SolutionCaches\_CreatureExport.1573950038.00" t="ExcludeRecursive" />
   </component>
 </project>

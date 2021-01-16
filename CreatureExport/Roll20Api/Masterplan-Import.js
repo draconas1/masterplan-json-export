@@ -335,19 +335,18 @@ var MasterplanImport = MasterplanImport || (function() {
             let powerAttr = (attr, value) => charAttr("power-" + (index + 1) + "-"  + attr, value);
             powerAttr("toggle", "on");
             powerAttr("name", power.Name);
-
-            // action must exist else it goes into traits
+        
             let action = power.Action;
-            powerAttr("action", mapAction(action.Action));
+            powerAttr("action", mapAction(action));
             powerAttr("useage", "At-Will");
             powerAttr("range", power.Range);
 
-            powerDesc += mapAction(action.Action) + ", " + "At-Will" + ", ";
+            powerDesc += mapAction(action) + ", " + "At-Will" + ", ";
 
             let macroStr = "&{template:dnd4epower} {{atwill=1}}"
            
             macroStr += "{{name=" + power.Name + "}}";
-            macroStr += "{{action=" + mapAction(action.Action) +" ♦ }}";
+            macroStr += "{{action=" + mapAction(action) +" ♦ }}";
 
             if (power.Attack) {
                 powerAttr("def", mapDefence(power.Attack.Defence));

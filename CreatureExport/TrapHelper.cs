@@ -26,7 +26,7 @@ namespace EncounterExport
                 foreach (var inputAttack in input.Attacks)
                 {
                     // tendency for empty attacks to happen
-                    if (inputAttack.Name != "Attack" 
+                    if ((!string.IsNullOrEmpty(inputAttack.Name) && inputAttack.Name != "Attack")
                         || inputAttack.Action != ActionType.Standard
                         || inputAttack.Range != ""
                         || inputAttack.Target != ""
@@ -35,11 +35,13 @@ namespace EncounterExport
                         || inputAttack.OnMiss != ""
                         || inputAttack.Effect != "")
                     {
+                        var attackName = string.IsNullOrEmpty(inputAttack.Name) || inputAttack.Name == "Attack" ? "Trap Attack" : inputAttack.Name;
                         var attack = new OutputTrapAttack()
                         {
                             Attack = inputAttack,
                             Damage = CommonHelpers.parseDamageString(inputAttack.OnHit, errors, input.Name)
                         };
+                        attack.Attack.Name = attackName;
                         result.Attacks.Add(attack);
                     }
                 }
@@ -130,7 +132,7 @@ namespace EncounterExport
             }
         }
     }
-    
+   
     public class TrapAndErrors
     {
         public OutputTrap Trap { get; set; }

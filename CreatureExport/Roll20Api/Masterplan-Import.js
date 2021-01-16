@@ -463,7 +463,7 @@ var MasterplanImport = MasterplanImport || (function() {
                     MasterplanCommon.chatOutput("My book was full of things, but I don't think they were very nice.  Good luck!");
                 }
                 else {
-                    MasterplanCommon.chatOutput("My book was empty.  Thee were no badgers!");
+                    MasterplanCommon.chatOutput("My book was empty.  There were no badgers!");
                 }
             })
         }

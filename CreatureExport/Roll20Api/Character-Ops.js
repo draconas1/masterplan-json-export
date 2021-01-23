@@ -131,7 +131,8 @@ var CharacterOps = CharacterOps || (function () {
                 let surgesAttr = surgesAttrList[0]
                 let surges = surgesAttr.get("current")
                 if (surges > 0) {
-                    let hp = TokenOps.value(token, HP_BAR, false)
+                    let rawhp = TokenOps.value(token, HP_BAR, false)
+                    let hp = rawhp > 0 ? rawhp : 0 
                     let hpMax = TokenOps.value(token, HP_BAR, true)
                     MasterplanCommon.debugOutput(name + ": HP/Max, Surges/Surge Value " + hp + "/" + hpMax + ", " + surges + "/" + surgeValue, msg.who)
                     if (hp < hpMax) {

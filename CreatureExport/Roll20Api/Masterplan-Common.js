@@ -112,14 +112,6 @@ var MasterplanCommon = MasterplanCommon || (function() {
         if (command === debugOffCommand) {
             debug = false;
         }
-        
-        if (command === "traps") {
-            sendChat(scriptName, "Yay!  My book has loads of new things in it!");
-            sendChat(scriptName, "Wait, these aren't badgers!");
-            sendChat(scriptName, "The GM has filled my book with horrible traps!");
-            sendChat(scriptName, "Um...");
-            sendChat(scriptName, "Fair warning I guess?");
-        }
     }
 
     return {

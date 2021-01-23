@@ -9,6 +9,9 @@ namespace EncounterExport
 
     public static class CommonHelpers
     {
+        public static readonly Regex entireDamageStrRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)([ ]*\+[ ]*([1-9][0-9]*)*)*",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        
         private static readonly Regex damageDiceRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex damagePlusRx = new Regex(@"\+[ ]*([1-9][0-9]*)*",

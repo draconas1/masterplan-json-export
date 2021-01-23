@@ -8,9 +8,6 @@ namespace EncounterExport
 {
     public static class CreatureHelper
     {
-        private static readonly Regex entireDamageStrRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)([ ]*\+[ ]*([1-9][0-9]*)*)*",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        
         public static CreatureAndErrors createCreature(ICreature input)
         {
             try
@@ -133,13 +130,13 @@ namespace EncounterExport
         private static void ProcessAttack(Power resultPower, CreaturePower power, List<string> errors)
         {
             resultPower.Damage = CommonHelpers.parseDamageString(power.Damage, errors, power.Name);
-            var entireMatch = entireDamageStrRx.Match(power.Details);
+            var entireMatch = CommonHelpers.entireDamageStrRx.Match(power.Details);
             if (entireMatch.Success)
             {
                 resultPower.Damage.Raw = power.Damage;
                 var match = entireMatch.Groups[0].Value; // get the entire match group
                 var newDamageString =
-                    entireDamageStrRx.Replace(power.Details, "[[" + match + "]]");
+                    CommonHelpers.entireDamageStrRx.Replace(power.Details, "[[" + match + "]]");
                 resultPower.PowerCard.Details = newDamageString;
             }
         }

@@ -38,11 +38,22 @@ namespace EncounterExport
                         var attackName = string.IsNullOrEmpty(inputAttack.Name) || inputAttack.Name == "Attack" ? "Trap Attack" : inputAttack.Name;
                         var attack = new OutputTrapAttack()
                         {
-                            Attack = inputAttack,
+                            Attack = inputAttack.Copy(),
                             Damage = CommonHelpers.parseDamageString(inputAttack.OnHit, errors, input.Name)
                         };
                         attack.Attack.Name = attackName;
                         result.Attacks.Add(attack);
+                        
+                        var entireMatch = CommonHelpers.entireDamageStrRx.Match(inputAttack.OnHit);
+                        if (entireMatch.Success)
+                        {
+                            attack.Damage.Raw = inputAttack.OnHit;
+                            var match = entireMatch.Groups[0].Value; // get the entire match group
+                            var newDamageString =
+                                CommonHelpers.entireDamageStrRx.Replace(inputAttack.OnHit, "[[" + match + "]]");
+                            attack.Attack.OnHit = newDamageString;
+                        }
+                        
                     }
                 }
 

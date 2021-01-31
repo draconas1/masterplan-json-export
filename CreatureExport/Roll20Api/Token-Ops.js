@@ -10,6 +10,7 @@ const AC_BAR_VALUE=AC_BAR + "_value"
 var TokenOps = TokenOps || (function() {
     const assignTokenCommand = "assign-token";
     const applyMarkersCommand = "apply-markers";
+    const torchCommand = "toggle-torch";
 
     const colours = ["red", "blue", "green", "brown", "purple", "pink", "yellow"]
     const reset = {}
@@ -133,6 +134,34 @@ var TokenOps = TokenOps || (function() {
         });
     }
 
+    const toggleTorch = (msg, command) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+        let radius = 25
+        if (command.options.length > 0) {
+            if (command.options[0] === "sunrod") {
+                radius = 100
+            }
+            if (command.options[0] === "lantern") {
+                radius = 50
+            }
+        }
+
+        loopOverSelected(msg, function(token, index) {
+            let emitsLight = token.get("emits_bright_light")
+            if (emitsLight) {
+                token.set("emits_bright_light", false)
+                token.set("status_yellow", false)
+            }
+            else {
+                token.set("emits_bright_light", true)
+                token.set("bright_light_distance", radius)
+                token.set("status_yellow", true)
+            }
+        });
+    }
+
     const soakDamageOnTempHP = (obj, prev) => {
         let prevHpValStr = prev[HP_BAR_VALUE];
         if (!prevHpValStr) {
@@ -198,8 +227,8 @@ var TokenOps = TokenOps || (function() {
         // Exit if not an api command
         if (msg.type != "api") return;
         // Split the message into command and argument(s)
-        let command = MasterplanCommon.parseCommand(msg).command
-
+        let fullCommand = MasterplanCommon.parseCommand(msg)
+        let command = fullCommand.command
 
         if (command === assignTokenCommand) {
             assignToken(msg);
@@ -207,6 +236,10 @@ var TokenOps = TokenOps || (function() {
 
         if (command === applyMarkersCommand) {
             applyMarkers(msg);
+        }
+
+        if (command === torchCommand) {
+            toggleTorch(msg, fullCommand);
         }
     }
 

@@ -204,14 +204,14 @@ var TokenOps = TokenOps || (function() {
     const applyBloodiedDeadEffect = (obj) => {
         let currHP = value(obj, HP_BAR);
         let maxHP = value(obj, HP_BAR, true);
-        if (currHP <= maxHP / 2) {
+        if (currHP <= maxHP / 2 && maxHP > 0) {
             obj.set("tint_color", "#980000")
         }
         else {
             obj.set("tint_color", "transparent")
         }
 
-        if (currHP <= 0) {
+        if (currHP <= 0 && maxHP > 0) {
             obj.set({
                 status_dead: true
             });

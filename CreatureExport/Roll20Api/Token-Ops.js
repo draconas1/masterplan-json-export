@@ -70,7 +70,7 @@ var TokenOps = TokenOps || (function() {
                 token.set("name", name);
 
                 let hp = getAttrByName(id, "hp")
-                if (hp) {
+                if (hp && hp > 0) {
                     token.set(HP_BAR_VALUE, hp)
                     token.set(HP_BAR + "_max", hp)
                 }
@@ -79,7 +79,7 @@ var TokenOps = TokenOps || (function() {
                 }
 
                 let ac = getAttrByName(id, "ac-raw")
-                if (ac) {
+                if (ac && ac > 0) {
                     token.set(AC_BAR_VALUE, getAttrByName(id, "ac-raw"))
                     token.set(AC_BAR + "_max", "")
                 }

@@ -1,6 +1,7 @@
 var MasterplanImport = MasterplanImport || (function() {
     const bookName = "Book About Badgers";
     const importCommand = "import-masterplan"
+    const numberOfMultiAttacks = 6  //1-20
 
     // Utility Functions
     const addAttribute = (charid, attr, value) => {
@@ -187,12 +188,34 @@ var MasterplanImport = MasterplanImport || (function() {
 
             if (power.Attack) {
                 powerAttr("def", mapDefence(power.Attack.Defence));
+                
+                let conditionDesc = ""
+                if (power.Condition != "") {
+                    macroStr += "{{requirement=" + power.Condition + "}}";
+                    conditionDesc = " (" + power.Condition + ")"
+                }
 
                 macroStr += "{{range=" + power.Range +"}}"
-                macroStr += "{{attack=[[1d20+" + power.Attack.Bonus +"]] vs **" + power.Attack.Defence + "**}}";
+                let multiAttack = false
+                if (power.Range) {
+                    let lc = power.Range.toLowerCase()
+                    multiAttack = lc.includes("burst") || lc.includes("blast")
+                }
+                
+                if (multiAttack) {
+                    macroStr += "{{multiattacktoggle=[[" + numberOfMultiAttacks + "]]}}"
+                    macroStr += "{{attack=[ ]([[1d1]])[[1d20cs>20+" + power.Attack.Bonus +"]] vs **" + power.Attack.Defence + "**}}"
+                    let i
+                    for (i = 2; i <= numberOfMultiAttacks; i++) {
+                        macroStr += "{{multiattack" + i + "=[[1d20cs>20+" + power.Attack.Bonus +"]] vs **" + power.Attack.Defence + "**}}"
+                    }
+                }
+                else {
+                    macroStr += "{{attack=[[1d20+" + power.Attack.Bonus +"]] vs **" + power.Attack.Defence + "**}}"
+                }
                 macroStr += "{{damage=" + power.Details + "}}";
 
-                powerDesc += power.Range + ", " + power.Attack.Bonus + " vs " + power.Attack.Defence
+                powerDesc += power.Range + ", " + power.Attack.Bonus + " vs " + power.Attack.Defence + conditionDesc
                 // note got to go back to the holder
                 if (powerHolder.Damage) {
                     let damage = powerHolder.Damage;

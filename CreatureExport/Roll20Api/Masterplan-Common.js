@@ -112,6 +112,10 @@ var MasterplanCommon = MasterplanCommon || (function() {
         if (command === debugOffCommand) {
             debug = false;
         }
+
+        if (command === "test") {
+            sendChat(scriptName, "API is working today");
+        }
     }
 
     return {

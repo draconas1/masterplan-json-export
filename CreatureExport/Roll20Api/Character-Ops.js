@@ -5,6 +5,7 @@ var CharacterOps = CharacterOps || (function () {
     const longRestCommand = "long-rest"
     const shortRestCommand = "short-rest"
     const usePowerCommand = "use-power"
+    const healingPotionCommand = "heal-potion"
 
     const difficultClass = {
         1: {easy: 8, moderate: 12, hard: 19},
@@ -106,20 +107,11 @@ var CharacterOps = CharacterOps || (function () {
         });
         MasterplanCommon.msgGM( "&{template:default}{{name=Knowledges}}" + output);
     }
-
-    const spendHealingSurge = (msg, command) => {
-        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
-            return;
-        }
-
+    
+    const heal = (msg, command, healDetails) => {
         let bonus = 0
-        if (command.options.length > 0) {
-            bonusStr = command.options.shift()
-            bonus = parseInt(bonusStr)
-            if (isNaN(bonus)) {
-                MasterplanCommon.chatOutput("I couldn't parse the bonus HP into a number.  I tried to parse: '" + bonusStr + "'")
-                return;
-            }
+        if (healDetails.bonus) {
+            bonus = healDetails.bonus
         }
 
         loopOverSelected(msg, function(token, character) {
@@ -130,20 +122,31 @@ var CharacterOps = CharacterOps || (function () {
             if (surgesAttrList.length > 0 && surgeValue) {
                 let surgesAttr = surgesAttrList[0]
                 let surges = surgesAttr.get("current")
-                if (surges > 0) {
+                if (surges > 0 || healDetails.artificer) {
                     let rawhp = TokenOps.value(token, HP_BAR, false)
-                    let hp = rawhp > 0 ? rawhp : 0 
+                    let hp = rawhp > 0 ? rawhp : 0
                     let hpMax = TokenOps.value(token, HP_BAR, true)
                     MasterplanCommon.debugOutput(name + ": HP/Max, Surges/Surge Value " + hp + "/" + hpMax + ", " + surges + "/" + surgeValue, msg.who)
                     if (hp < hpMax) {
                         // + is concatenate as soon a a string gets involved
                         let surgeInt = parseInt(surgeValue)
+                        if (healDetails.mournland) {
+                            if (hp < (hpMax/2)) {
+                                surgeInt = Math.floor(surgeInt / 2)
+                            }
+                        }
+                        if (healDetails.flatValue) {
+                            surgeInt = healDetails.flatValue
+                        }
                         let hpInt = parseInt(hp)
                         let newHP = Math.min(hpInt + surgeInt + bonus, hpMax)
-                        let newSurges = surges - 1
-
                         token.set(HP_BAR_VALUE, newHP)
-                        surgesAttr.set("current", newSurges)
+                        
+                        let newSurges = surges                      
+                        if (!healDetails.artificer) {
+                            newSurges = surges - 1
+                            surgesAttr.set("current", newSurges)
+                        }
                         MasterplanCommon.chatOutput(name + " is now at " + newHP + "HP with " + newSurges + " healing surges remaining", msg.who)
                         TokenOps.applyBloodiedDeadEffect(token)
                     }
@@ -159,6 +162,45 @@ var CharacterOps = CharacterOps || (function () {
                 MasterplanCommon.chatOutput("Could not find one of 'surges' or 'surge-value' for " + name, msg.who)
             }
         });
+    }   
+
+    const spendHealingSurge = (msg, command) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+        
+        let details = { bonus : 0, artificer : false, mournland: false}
+        if (command.options.length > 0) {
+            let bonusStr = command.options.shift()
+            let bonus = parseInt(bonusStr)
+            if (isNaN(bonus)) {
+                MasterplanCommon.chatOutput("I couldn't parse the bonus HP into a number.  I tried to parse: '" + bonusStr + "'")
+                return;
+            }
+            details.bonus = bonus
+            let param = command.options.shift()
+            while (param) {
+                if (param == "artificer") {
+                    details.artificer = true
+                }
+                if (param == "mourn") {
+                    details.mournland = true
+                }
+                param = command.options.shift()
+            }
+        }
+        
+        heal(msg, command, details)        
+    }
+    
+    const healingPotion = (msg, command) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+
+        let details = { bonus : 0, artificer : false, mournland: false, flatValue: 10}
+        
+        heal(msg, command, details)
     }
 
     const warforgeResolve = (msg) => {
@@ -344,6 +386,10 @@ var CharacterOps = CharacterOps || (function () {
 
         if (command === spendingHealingSurgeCommand) {
             spendHealingSurge(msg, commandInfo);
+        }
+
+        if (command === healingPotionCommand) {
+            healingPotion(msg, commandInfo);
         }
 
         if (command === warforgedResolveCommand) {

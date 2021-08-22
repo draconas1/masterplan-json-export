@@ -27,7 +27,10 @@ var MasterplanCommon = MasterplanCommon || (function() {
         }
     }
 
-    const enableDebug = () => {debug = true}
+    const enableDebug = () => {
+        msgGM("enabling debug");
+        debug = true
+    }
 
     const parseDebugOptions = (args) => {
         _.each(args, function(arg) {
@@ -106,7 +109,7 @@ var MasterplanCommon = MasterplanCommon || (function() {
         let command = MasterplanCommon.parseCommand(msg).command
 
         if (command === debugOnCommand) {
-            debug = true;
+            enableDebug()
         }
 
         if (command === debugOffCommand) {

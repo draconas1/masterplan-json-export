@@ -11,6 +11,7 @@ var TokenOps = TokenOps || (function() {
     const assignTokenCommand = "assign-token";
     const applyMarkersCommand = "apply-markers";
     const torchCommand = "toggle-torch";
+    const changeHpCommand = "change-hp"
 
     const colours = ["red", "blue", "green", "brown", "purple", "pink", "yellow"]
     const reset = {}
@@ -105,6 +106,85 @@ var TokenOps = TokenOps || (function() {
         });
 
         MasterplanCommon.msgGM( "Finished");
+    }
+
+    const assignPlayerToken = (msg) => {
+        if (MasterplanCommon.shouldExitIfNotGM(msg)) {
+            return;
+        }
+
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+
+        let sheetName = msg.content.replace("!" + assignTokenCommand + " ", "").trim()
+        let sourceList = findObjs({ type: 'character', name: sheetName }, {caseInsensitive: true});
+        if (sourceList.length < 1) {
+            MasterplanCommon.msgGM( "I can't find a character called '" + sheetName + "'");
+            return;
+        }
+        if (sourceList.length > 1) {
+            MasterplanCommon.msgGM( "I found more than 1 sheet matching that. '" + sheetName + "' I'm gonna stop now while you sort that out.  I found: " + JSON.stringify(sourceList));
+            return;
+        }
+        let character = sourceList[0];
+        loopOverSelected(msg, function(token) {
+            if (token.get("represents")) {
+                MasterplanCommon.msgGM( "Ohes Noes! " + token.get("name") + " already represents character: " + token.get("represents") + " I'm not changing it");
+            }
+            else {
+                let id = character.id;
+                let name = character.get("name")
+
+                token.set("represents", id);
+                token.set("name", name);
+                token.set("showplayers_name", true)
+
+                token.set(HP_BAR + "_link", "hp")
+                token.set(TMP_HP_BAR + "_link", "tmp-hp")
+                token.set(SURGES_BAR + "_link", "surges")
+                let bars = [HP_BAR, TMP_HP_BAR, SURGES_BAR]
+
+                _.each(bars, function(bar, index) {
+                    token.set("showplayers_" + bar, true)
+                })
+            }
+        });
+
+        MasterplanCommon.msgGM( "Finished");
+    }
+    
+    const changeHp = (msg, command) => {
+        if (MasterplanCommon.shouldExitIfNotGM(msg)) {
+            return;
+        }
+
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+
+        if (command.options.length === 0) {
+            MasterplanCommon.msgGM( "you must specify an amount of HP to change for this command");
+            return;
+        }
+        
+        const hpChange = parseInt(command.options[0])
+
+        loopOverSelected(msg, function(token, index) {
+            const hpValStr = token.get(HP_BAR_VALUE);
+            const hpVal = parseInt(hpValStr);
+            if (isNaN(hpVal)) {
+                MasterplanCommon.debugOutput("WARN: Bar " + HP_BAR + " does not contain a number: '" + hpValStr + "'");
+            }
+            else {
+                const newHp = hpVal + hpChange
+                token.set(HP_BAR_VALUE, newHp)
+                const old = { }
+                old[HP_BAR_VALUE] = hpVal
+                MasterplanCommon.debugOutput("badger");
+                soakDamageOnTempHP(token, old)
+            }
+        });
     }
 
     const applyMarkers = (msg) => {
@@ -240,6 +320,10 @@ var TokenOps = TokenOps || (function() {
 
         if (command === torchCommand) {
             toggleTorch(msg, fullCommand);
+        }
+        
+        if (command === changeHpCommand) {
+            changeHp(msg, fullCommand)
         }
     }
 

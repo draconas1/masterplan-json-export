@@ -1,0 +1,142 @@
+﻿{
+  "_id": "87yM2o4rTRZLMKzE",
+  "name": "power1",
+  "type": "power",
+  "img": "icons/svg/item-bag.svg",
+  "data": {
+    "description": {
+      "value": "",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "",
+    "activation": {
+      "type": "",
+      "cost": 0,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": ""
+    },
+    "target": "One Creature",
+    "range": {
+      "value": null,
+      "long": null,
+      "units": ""
+    },
+    "uses": {
+      "value": 0,
+      "max": 0,
+      "per": null
+    },
+    "consume": {
+      "type": "",
+      "target": null,
+      "amount": null
+    },
+    "ability": null,
+    "actionType": "standard",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": null,
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "damageCrit": {
+      "parts": [],
+      "versatile": ""
+    },
+    "damageImp": {
+      "parts": [],
+      "versatile": ""
+    },
+    "damageCritImp": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "macro": {
+      "type": "script",
+      "scope": "global",
+      "launchOrder": "off",
+      "command": "",
+      "author": ""
+    },
+    "keyWords": [
+      ""
+    ],
+    "level": "1",
+    "powersource": "martial",
+    "subName": "",
+    "prepared": true,
+    "powerType": "class",
+    "useType": "atwill",
+    "requirements": "",
+    "weaponType": "melee",
+    "weaponUse": "default",
+    "rangeType": "weapon",
+    "rangeTextShort": "",
+    "rangeText": "",
+    "rangePower": "",
+    "area": 0,
+    "rechargeRoll": "",
+    "damageShare": false,
+    "postEffect": true,
+    "postSpecial": true,
+    "autoGenChatPowerCard": true,
+    "sustain": {
+      "actionType": "none",
+      "detail": ""
+    },
+    "attack": {
+      "shareAttackRoll": false,
+      "isAttack": true,
+      "ability": "str",
+      "abilityBonus": 0,
+      "def": "ac",
+      "defBonus": 0,
+      "formula": "@wepAttack+@powerMod+@lvhalf",
+      "damageType": {},
+      "effectType": {}
+    },
+    "hit": {
+      "shareDamageRoll": false,
+      "isDamage": true,
+      "isHealing": false,
+      "baseQuantity": 1,
+      "baseDiceType": "Base Weapon Damage",
+      "detail": "1[W] + Strength modifier damage.",
+      "formula": "@powBase + @powerMod + @wepDamage",
+      "critFormula": "@powMax + @powerMod + @wepDamage + @wepCritBonus",
+      "healFormula": ""
+    },
+    "miss": {
+      "detail": "Half Damage.",
+      "formula": "@{damageFormula}/2"
+    },
+    "effect": {
+      "detail": ""
+    },
+    "trigger": "",
+    "requirement": "",
+    "special": "",
+    "specialAdd": {
+      "parts": []
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "permission": {
+    "default": 0,
+    "Et6JUHKi217cfq22": 3
+  },
+  "flags": {}
+}

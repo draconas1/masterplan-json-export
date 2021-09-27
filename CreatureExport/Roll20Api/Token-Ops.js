@@ -12,6 +12,7 @@ var TokenOps = TokenOps || (function() {
     const applyMarkersCommand = "apply-markers";
     const torchCommand = "toggle-torch";
     const changeHpCommand = "change-hp"
+    const addTempHpCommand = "add-temp-hp"
 
     const colours = ["red", "blue", "green", "brown", "purple", "pink", "yellow"]
     const reset = {}
@@ -213,6 +214,24 @@ var TokenOps = TokenOps || (function() {
             }
         });
     }
+    
+    const addTempHP = (msg, command) => {
+        if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
+            return;
+        }
+
+        let hp = 0
+        if (command.options.length > 0) {
+            hp = parseInt(command.options[0])
+        }
+
+        loopOverSelected(msg, function(token, index) {
+            let tmpHpVal = parseInt(token.get(TMP_HP_BAR_VALUE));
+            if (hp > tmpHpVal) {
+                token.set(TMP_HP_BAR_VALUE, hp)
+            }
+        });
+    }
 
     const toggleTorch = (msg, command) => {
         if (MasterplanCommon.shouldExitIfNotSelected(msg)) {
@@ -324,6 +343,10 @@ var TokenOps = TokenOps || (function() {
         
         if (command === changeHpCommand) {
             changeHp(msg, fullCommand)
+        }
+
+        if (command === addTempHpCommand) {
+            addTempHP(msg, fullCommand)
         }
     }
 

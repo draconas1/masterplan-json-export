@@ -147,11 +147,13 @@ namespace EncounterExport
             {
                 var resistances = "";
                 var vunerables = "";
+                var immunities = "";
                 foreach (var mod in input.DamageModifiers)
                 {
                     var str = ", " + mod.Value + " " + mod.Type;
                     if (mod.Value == 0)
                     {
+                        immunities += ", " + mod.Type;
                         continue;
                     }
 
@@ -170,6 +172,7 @@ namespace EncounterExport
                 result.Vulnerable += vunerables;
                 result.Resist = removeComma(result.Resist);
                 result.Vulnerable = removeComma(result.Vulnerable);
+                result.Immune += removeComma(immunities); //immune has had text set
             }
         }
         

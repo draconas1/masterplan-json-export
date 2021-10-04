@@ -27,8 +27,6 @@ namespace EncounterExport
         public Senses senses { get; set; } = new Senses();
         public List<NameDescValue> auras { get; set; }
         public Dictionary<string, DamageMod> resistances { get; set; } = new Dictionary<string, DamageMod>();
-
-        public Dictionary<string, object> knowledgeHolder { get; set; } = new Dictionary<string, object>();
     }
 
     public class FoundryCreature
@@ -114,7 +112,7 @@ namespace EncounterExport
     public class Attributes
     {
         public IntValueHolderWithMax hp { get; set; } = new IntValueHolderWithMax();
-        public IntValueHolder init { get; set; } = new IntValueHolder();
+        public IntValueWithBonuses init { get; set; } = new IntValueWithBonuses();
     }
 
     public class Defence : IntValueHolder
@@ -243,7 +241,7 @@ namespace EncounterExport
     {
         public FoundryPowerDescription description { get; set; } = new FoundryPowerDescription();
         public string source { get; set; }
-        public FoundryPowerActivation activation = new FoundryPowerActivation();
+        
         public string level { get; set; } = "";
         public List<string> keywords { get; set; } = new List<string>();
         public string powersource { get; set; } 
@@ -289,13 +287,6 @@ namespace EncounterExport
         public string value { get; set; } = "";
         public string chat { get; set; } = "";
         public string unidentified { get; set; } = "";
-    }
-
-    public class FoundryPowerActivation
-    {
-        public string type { get; set; } = "";
-        public int cost { get; set; }
-        public string condition { get; set; }
     }
 
     public class FoundryPowerSustain

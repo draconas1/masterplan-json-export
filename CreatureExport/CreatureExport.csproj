@@ -64,6 +64,8 @@
     <Compile Include="ExportEncounterAndSubsCommand.cs" />
     <Compile Include="ExportEncounterCommand.cs" />
     <Compile Include="ExportProjectCommand.cs" />
+    <Compile Include="FoundryHelpers\FoundryPowerHelper.cs" />
+    <Compile Include="FoundryHelpers\FoundrySensesHelper.cs" />
     <Compile Include="FoundryJSONClasses.cs" />
     <Compile Include="JSONBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

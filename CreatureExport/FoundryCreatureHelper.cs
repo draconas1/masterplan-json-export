@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
+using EncounterExport.FoundryHelpers;
 using Masterplan.Data;
 using Newtonsoft.Json;
 
@@ -10,22 +12,7 @@ namespace EncounterExport
 {
     public static class FoundryCreatureHelper
     {
-        private static readonly string[] ElementalDamageTypes =
-        {
-            "acid",
-            "cold",
-            "fire",
-            "force",
-            "lightning",
-            "necrotic",
-            "poison",
-            "psychic",
-            "radiant",
-            "thunder"
-        };
-
-        private static readonly HashSet<string> ElementalDamageTypeSet = new HashSet<string>(ElementalDamageTypes);
-
+        private const bool DEBUG = false;
         public static FoundryCreatureAndErrors CreateCreature(EncounterCreature encounterCreature)
         {
             var input = encounterCreature.Creature;
@@ -67,6 +54,33 @@ namespace EncounterExport
                 {
                     case ComplexRole role:
                         details.role.primary = role.Type.ToString().ToLowerInvariant();
+                        switch (role.Type)
+                        {
+                            case RoleType.Lurker:
+                            {
+                                var initBonus = new Bonus
+                                {
+                                    active = true,
+                                    name = $"{role.Type} role",
+                                    value = 4
+                                };
+                                result.attributes.init.bonus.Add(initBonus);
+                                break;
+                            }
+
+                            case RoleType.Skirmisher:
+                            case RoleType.Soldier:
+                            {
+                                var initBonus = new Bonus
+                                {
+                                    active = true,
+                                    name = $"{role.Type} role",
+                                    value = 2
+                                };
+                                result.attributes.init.bonus.Add(initBonus);
+                                break;
+                            }
+                        }
                         details.role.leader = role.Leader;
                         switch (role.Flag)
                         {
@@ -141,23 +155,13 @@ namespace EncounterExport
                     AddValueToBio(input.Regeneration.ToString(), "Regeneration", result, monsterKnowledgeHardDescription);
                 }
 
-                result.senses = ProcessSenses(input.Senses);
+                result.senses = FoundrySensesHelper.ProcessSenses(input.Senses);
 
                 result.auras = ProcessAuras(input, result, errors);
 
                 ProcessDamageModifiers(input, result, monsterKnowledgeHardDescription);
 
                 AddValueToBio(input.Equipment, "Equipment", result);
-
-                // result.creature = input;
-                // result.card = encounterCreature.Card;
-
-                // result.Details = input.Details;
-                // result.Origin = input.Origin;
-                // result.FullTypeDesc = input.Phenotype;
-
-                // result.Category = input.Category;
-
 
                 List<FoundryPower> powers = new List<FoundryPower>();
                 List<FoundryTrait> traits = new List<FoundryTrait>();
@@ -172,11 +176,11 @@ namespace EncounterExport
                     {
                         if (power.Attack != null)
                         {
-                            powers.Add(ProcessAttack(power, errors));
+                            powers.Add(FoundryPowerHelper.ProcessAttack(power, errors));
                         }
                         else
                         {
-                            powers.Add(ProcessAction(power, errors, false));
+                            powers.Add(FoundryPowerHelper.ProcessAction(power, errors, false));
                         }
                     }
                 }
@@ -193,6 +197,10 @@ namespace EncounterExport
                     },
                     Errors = errors
                 };
+                if (DEBUG)
+                {
+                    output.Creature.creature = input;
+                }
 
                 GenerateMonsterKnowledgeBlocks(output, monsterKnowledgeHardDescription);
                 
@@ -220,7 +228,7 @@ namespace EncounterExport
         {
             var medKnowledge = new FoundryTrait
             {
-                name = "Monster Knowledge (med): ",
+                name = "Monster Knowledge (med)",
                 type = "classFeats",
                 img = "icons/svg/book.svg"
                     
@@ -253,7 +261,7 @@ namespace EncounterExport
             
             var hardKnowledge = new FoundryTrait
             {
-                name = "Monster Knowledge (hard): ",
+                name = "Monster Knowledge (hard)",
                 type = "classFeats",
                 img = "icons/svg/book.svg"
             };
@@ -329,246 +337,6 @@ namespace EncounterExport
                 }
             }
         }
-
-        private static readonly Regex BlindsightRgx =
-            new Regex(@"blindsight ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex TremorsenseRgx =
-            new Regex(@"tremorsense ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static Senses ProcessSenses(string inputSenses)
-        {
-            var senses = new Senses();
-            var inputSenseLower = inputSenses.ToLowerInvariant();
-            if (inputSenseLower.Contains("low-light"))
-            {
-                var ll = new List<string>();
-                ll.Add("lv");
-                ll.Add("");
-                senses.special.value.Add(ll);
-                inputSenseLower = inputSenseLower.Replace("low-light vision", "").Replace("low-light", "");
-            }
-
-            if (inputSenseLower.Contains("darkvision"))
-            {
-                var ll = new List<string>();
-                ll.Add("dv");
-                ll.Add("");
-                senses.special.value.Add(ll);
-                inputSenseLower = inputSenseLower.Replace("darkvision", "");
-            }
-
-            var bsMatch = BlindsightRgx.Match(inputSenseLower);
-            if (bsMatch.Success)
-            {
-                var range = bsMatch.Groups[1].Value;
-                var ll = new List<string>();
-                ll.Add("bs");
-                ll.Add(range);
-                senses.special.value.Add(ll);
-                inputSenseLower = inputSenseLower.Replace(bsMatch.Value, "");
-            }
-
-            var tsMatch = TremorsenseRgx.Match(inputSenseLower);
-            if (tsMatch.Success)
-            {
-                var range = tsMatch.Groups[1].Value;
-                var ll = new List<string>();
-                ll.Add("ts");
-                ll.Add(range);
-                senses.special.value.Add(ll);
-                inputSenseLower = inputSenseLower.Replace(tsMatch.Value, "");
-            }
-
-            senses.special.custom = inputSenseLower;
-            return senses;
-        }
-
-
-        private static readonly Regex AreaBurstRgx =
-            new Regex(@"area burst ([1-9][0-9]*) within ([1-9][0-9]*)",
-                RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex CloseBlastRgx =
-            new Regex(@"close blast ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex CloseBurstRgx =
-            new Regex(@"close burst ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex MeleeNRgx =
-            new Regex(@"melee ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex RangedNRgx =
-            new Regex(@"ranged ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex ReachNRgx =
-            new Regex(@"reach ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex Wall1Rgx =
-            new Regex(@"wall ([1-9][0-9]*) within ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex Wall2Rgx =
-            new Regex(@"wall ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static void ProcessRangeAndWeapon(string range, FoundryPowerData data, string power,
-            List<string> errors)
-        {
-            bool weapon = data.keywords.Contains("weapon") || data.keywords.Contains("Weapon");
-            bool implement = data.keywords.Contains("implement") || data.keywords.Contains("Implement");
-            if (implement)
-            {
-                data.weaponType = "implement";
-            }
-
-            try
-            {
-                bool hasMatched = false;
-                {
-                    var match = AreaBurstRgx.Match(range);
-                    if (match.Success)
-                    {
-                        data.rangeType = "rangeBurst";
-                        data.rangePower = Int32.Parse(match.Groups[2].Value);
-                        data.area = Int32.Parse(match.Groups[1].Value);
-                        if (weapon)
-                        {
-                            data.weaponType = "range";
-                        }
-
-                        hasMatched = true;
-                    }
-                }
-                {
-                    var match = CloseBlastRgx.Match(range);
-                    if (match.Success)
-                    {
-                        data.rangeType = "closeBlast";
-                        data.area = Int32.Parse(match.Groups[1].Value);
-                        if (weapon)
-                        {
-                            data.weaponType = "melee";
-                        }
-
-                        hasMatched = true;
-                    }
-                }
-                {
-                    var match = CloseBurstRgx.Match(range);
-                    if (match.Success)
-                    {
-                        data.rangeType = "closeBurst";
-                        data.area = Int32.Parse(match.Groups[1].Value);
-                        if (weapon)
-                        {
-                            data.weaponType = "melee";
-                        }
-
-                        hasMatched = true;
-                    }
-                }
-                {
-                    var match = MeleeNRgx.Match(range);
-                    if (match.Success)
-                    {
-                        data.rangeType = "weapon";
-                        data.rangePower = Int32.Parse(match.Groups[1].Value);
-                        data.isMelee = true;
-                        if (weapon)
-                        {
-                            data.weaponType = "melee";
-                        }
-
-                        hasMatched = true;
-                    }
-                }
-                {
-                    var match = RangedNRgx.Match(range);
-                    if (match.Success)
-                    {
-                        data.rangeType = "range";
-                        data.rangePower = Int32.Parse(match.Groups[1].Value);
-                        if (weapon)
-                        {
-                            data.weaponType = "range";
-                        }
-
-                        hasMatched = true;
-                    }
-                }
-                {
-                    var match = ReachNRgx.Match(range);
-                    if (match.Success)
-                    {
-                        data.rangeType = "weapon";
-                        data.rangePower = Int32.Parse(match.Groups[1].Value);
-                        data.isMelee = true;
-                        if (weapon)
-                        {
-                            data.weaponType = "melee";
-                        }
-
-                        hasMatched = true;
-                    }
-                }
-                {
-                    var match = Wall1Rgx.Match(range);
-                    if (match.Success)
-                    {
-                        data.rangeType = "wall";
-                        data.rangePower = Int32.Parse(match.Groups[2].Value);
-                        data.area = Int32.Parse(match.Groups[1].Value);
-                        hasMatched = true;
-                    }
-                    else
-                    {
-                        match = Wall2Rgx.Match(range);
-                        if (match.Success)
-                        {
-                            data.rangeType = "wall";
-                            data.area = Int32.Parse(match.Groups[1].Value);
-                            hasMatched = true;
-                        }
-                    }
-                }
-                
-                if (!hasMatched)
-                {
-                    var rangeLower = range.ToLowerInvariant();
-                    if (rangeLower.Contains("personal"))
-                    {
-                        data.rangeType = "personal";
-                    }
-                    else if (rangeLower.Contains("touch"))
-                    {
-                        data.rangeType = "touch";
-                        if (weapon)
-                        {
-                            data.weaponType = "melee";
-                        }
-                    }
-                    else if (rangeLower.Contains("melee"))
-                    {
-                        data.rangeType = "weapon";
-                        data.isMelee = true;
-                        if (weapon)
-                        {
-                            data.weaponType = "melee";
-                        }
-                    }
-                }
-
-                if (data.weaponType != "none")
-                {
-                    data.weaponUse = "default";
-                }
-            }
-            catch (Exception e)
-            {
-                errors.Add("Failed to Parse Range: '" + range + "' for power " + power + ":" + e.Message);
-            }
-        }
-
-
         private static FoundryTrait ProcessTrait(CreaturePower power, List<string> errors)
         {
             var result = new FoundryTrait
@@ -578,225 +346,6 @@ namespace EncounterExport
             // sometimes details are in the range field for traits
             result.data.description.value = string.IsNullOrEmpty(power.Details) ? power.Range : power.Details;
             return result;
-        }
-
-        private static FoundryPower ProcessAction(CreaturePower power, List<string> errors,
-            bool attackPower)
-        {
-            var resultPower = new FoundryPower
-            {
-                name = power.Name
-            };
-            var powerData = resultPower.data;
-            powerData.keywords = power.Keywords.Split(CommonHelpers.separator, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Trim()).ToList();
-
-            foreach (var powerDataKeyword in powerData.keywords)
-            {
-                powerData.damageType.Add(powerDataKeyword.ToLowerInvariant(), true);
-                powerData.effectType.Add(powerDataKeyword.ToLowerInvariant(), true);
-            }
-
-            var detailString = $"{power.Action.Action}, {power.Action.Use}, ";
-            var use = "atwill";
-
-            switch (power.Action.Use)
-            {
-                case PowerUseType.Basic:
-                    powerData.basicAttack = true;
-                    powerData.subName = "Basic Attack";
-                    break;
-                case PowerUseType.AtWill: break;
-                default:
-                    use = power.Action.Use.ToString().ToLowerInvariant();
-                    break;
-            }
-
-            if (!string.IsNullOrEmpty(power.Action.Recharge))
-            {
-                use = "recharge";
-            }
-
-            powerData.useType = use;
-            powerData.actionType = power.Action.Action.ToString().ToLowerInvariant();
-            powerData.requirement = power.Condition;
-            powerData.trigger = power.Action.Trigger;
-            if (!string.IsNullOrEmpty(power.Action.Trigger))
-            {
-                detailString += $"({power.Action.Trigger}), ";
-            }
-            // range text not displayed for monster powers, perhaps player?
-            powerData.rangeTextShort = power.Range;
-            powerData.rangeText = power.Range;
-
-            powerData.target = power.Range;
-            powerData.rechargeRoll = power.Action.Recharge;
-
-            powerData.chatFlavor = power.Description;
-            powerData.sustain.actionType = power.Action.SustainAction.ToString().ToLowerInvariant();
-
-            // sometimes details are in the range field for traits
-            powerData.effect.detail = string.IsNullOrEmpty(power.Details) ? power.Range : power.Details;
-            if (!attackPower)
-            {
-                detailString += $"{powerData.effect.detail}";
-            }
-          
-            resultPower.data.attack.isAttack = false;
-            resultPower.data.hit.isDamage = false;
-            resultPower.data.description.chat = detailString;
-
-            return resultPower;
-        }
-
-
-        private static readonly Regex MissRgx =
-            new Regex(@"miss: (.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
-
-        private static readonly Regex EffectRgx =
-            new Regex(@"effect: (.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
-
-        private static readonly Regex SpecialRgx =
-            new Regex(@"special: (.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
-
-        private static readonly Regex DamageTypeRegex1 =
-            new Regex(@"([a-z]+) damage", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static readonly Regex DamageTypeRegex2 =
-            new Regex(@"([a-z]+) and ([a-z]+) damage", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private static FoundryPower ProcessAttack(CreaturePower power, List<string> errors)
-        {
-            var resultPower = ProcessAction(power, errors, true);
-            var powerData = resultPower.data;
-            resultPower.data.attack.isAttack = true;
-            resultPower.data.hit.isDamage = true;
-
-            // check to see if it was an elemental damage type, if not we fall back tp physcal 
-            var shouldAddPhysicalDamage = true;
-            var keywordsHashSet = new HashSet<string>(powerData.keywords.Select(x => x.ToLowerInvariant()));
-            if (keywordsHashSet.Intersect(ElementalDamageTypeSet).Any())
-            {
-                shouldAddPhysicalDamage = false;
-            }
-
-            // parse the power text just in case they didn't add the damage type to the keywords
-            // single type
-            {
-                var damageTypeInPowerData = DamageTypeRegex1.Match(power.Details);
-                if (damageTypeInPowerData.Success)
-                {
-                    var damageType = damageTypeInPowerData.Groups[1].Value.ToLowerInvariant();
-                    powerData.damageType[damageType] = true;
-                    shouldAddPhysicalDamage = false;
-                }
-            }
-            //multiple types
-            {
-                var damageTypeInPowerData = DamageTypeRegex2.Match(power.Details);
-                if (damageTypeInPowerData.Success)
-                {
-                    var damageType1 = damageTypeInPowerData.Groups[1].Value.ToLowerInvariant();
-                    powerData.damageType[damageType1] = true;
-                    var damageType2 = damageTypeInPowerData.Groups[2].Value.ToLowerInvariant();
-                    powerData.damageType[damageType2] = true;
-                    shouldAddPhysicalDamage = false;
-                }
-            }
-            // more than 2 types is incredibly rare, if they have done that they need to have done it in the keywords like a sensible person
-
-            if (shouldAddPhysicalDamage)
-            {
-                powerData.damageType["physical"] = true;
-            }
-
-            ProcessRangeAndWeapon(power.Range, powerData, power.Name, errors);
-            var def = "AC";
-            switch (power.Attack.Defence)
-            {
-                case DefenceType.Fortitude:
-                    def = "Fort";
-                    break;
-                case DefenceType.Reflex:
-                    def = "Ref";
-                    break;
-                case DefenceType.Will:
-                    def = "Wil";
-                    break;
-                default: break;
-            }
-
-            powerData.attack.def = def.ToLowerInvariant();
-            powerData.attack.formula = power.Attack.Bonus.ToString();
-            powerData.description.chat += $"{power.Range}, {power.Attack.Bonus} vs {def}";
-
-            // reminder that details is the entire block and that Damage is Masterplans attempt to parse it out
-            powerData.hit.detail = power.Details;
-            var damage = CommonHelpers.parseDamageString(power.Damage, errors, power.Name);
-            powerData.hit.formula = damage.NumDice > 0
-                ? damage.NumDice + "d" + damage.DiceSize + "+" + damage.Bonus
-                : damage.Bonus.ToString();
-            powerData.hit.critFormula = damage.NumDice + "*" + damage.DiceSize + "+" + damage.Bonus;
-
-            // attempt to get miss, effect and special out of the details.  
-            {
-                var match = MissRgx.Match(power.Details);
-                if (match.Success)
-                {
-                    powerData.miss.detail = match.Groups[1].Value;
-                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
-                }
-            }
-            {
-                // effect detail was set by trait call
-                powerData.effect.detail = null;
-                var match = EffectRgx.Match(power.Details);
-                if (match.Success)
-                {
-                    powerData.effect.detail = match.Groups[1].Value;
-                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
-                }
-            }
-            {
-                var match = SpecialRgx.Match(power.Details);
-                if (match.Success)
-                {
-                    powerData.special = match.Groups[1].Value;
-                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
-                }
-            }
-            powerData.hit.detail = powerData.hit.detail.Replace("\r\n", "");
-
-            if (powerData.isMelee)
-            {
-                resultPower.img = powerData.basicAttack
-                    ? "modules/foundry-4e-tools/icons/melee-basic.svg"
-                    : "modules/foundry-4e-tools/icons/melee.svg";
-            }
-            else
-            {
-                switch (powerData.rangeType)
-                {
-                    case "range":
-                        resultPower.img = powerData.basicAttack
-                            ? "modules/foundry-4e-tools/icons/ranged-basic.svg"
-                            : "modules/foundry-4e-tools/icons/ranged.svg";
-                        break;
-                    case "closeBurst":
-                    case "closeBlast":
-                        resultPower.img = "modules/foundry-4e-tools/icons/close-blast.svg";
-                        break;
-                    case "rangeBurst":
-                    case "rangeBlast":
-                    case "wall":
-                        resultPower.img = "modules/foundry-4e-tools/icons/area-burst.svg";
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            return resultPower;
         }
 
         private static void ProcessDamageModifiers(ICreature input, FoundryCreatureData result,
@@ -849,9 +398,9 @@ namespace EncounterExport
                     }
                 }
 
-                immunities = removeComma(immunities);
-                AddValueToBio(removeComma(resistances), "Resistances", result, monsterKnowledgeHardDescription);
-                AddValueToBio(removeComma(vunerables), "Vulnerabilities", result, monsterKnowledgeHardDescription);
+                immunities = RemoveComma(immunities);
+                AddValueToBio(RemoveComma(resistances), "Resistances", result, monsterKnowledgeHardDescription);
+                AddValueToBio(RemoveComma(vunerables), "Vulnerabilities", result, monsterKnowledgeHardDescription);
             }
 
             var immuneStringList = new List<string>();
@@ -899,14 +448,9 @@ namespace EncounterExport
             }
         }
 
-        private static string removeComma(string input)
+        private static string RemoveComma(string input)
         {
-            if (input.StartsWith(", "))
-            {
-                return input.Substring(2);
-            }
-
-            return input;
+            return input.StartsWith(", ") ? input.Substring(2) : input;
         }
 
         private static Skills ProcessSkills(ICreature input, List<string> errors)
@@ -1015,7 +559,7 @@ namespace EncounterExport
         }
 
         private static List<NameDescValue> ProcessAuras(ICreature input, FoundryCreatureData output,
-            List<String> errors)
+            List<string> errors)
         {
             if (input.Auras != null && input.Auras.Any())
             {

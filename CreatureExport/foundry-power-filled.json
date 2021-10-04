@@ -1,0 +1,177 @@
+﻿{
+  "name": "power1",
+  "type": "power",
+  "img": "icons/svg/item-bag.svg",
+  "data": {
+    "description": {
+      "value": "<p>Description Text</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "source",
+    "activation": {
+      "type": "",
+      "cost": 0,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": ""
+    },
+    "target": "One Creature",
+    "range": {
+      "value": null,
+      "long": null,
+      "units": ""
+    },
+    "uses": {
+      "value": 1,
+      "max": 1,
+      "per": "enc"
+    },
+    "consume": {
+      "type": "ammo",
+      "target": "",
+      "amount": null
+    },
+    "ability": null,
+    "actionType": "standard",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": null,
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "damageCrit": {
+      "parts": [],
+      "versatile": ""
+    },
+    "damageImp": {
+      "parts": [],
+      "versatile": ""
+    },
+    "damageCritImp": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "macro": {
+      "type": "script",
+      "scope": "global",
+      "launchOrder": "off",
+      "command": "",
+      "author": ""
+    },
+    "keyWords": [
+      ""
+    ],
+    "level": "1",
+    "powersource": "martial",
+    "subName": "class name attack 1",
+    "prepared": true,
+    "powerType": "class",
+    "useType": "atwill",
+    "requirements": "",
+    "weaponType": "melee",
+    "weaponUse": "default",
+    "rangeType": "rangeBurst",
+    "rangeTextShort": "",
+    "rangeText": "",
+    "rangePower": 10,
+    "area": 3,
+    "rechargeRoll": "",
+    "damageShare": false,
+    "postEffect": true,
+    "postSpecial": true,
+    "autoGenChatPowerCard": true,
+    "sustain": {
+      "actionType": "none",
+      "detail": ""
+    },
+    "attack": {
+      "shareAttackRoll": false,
+      "isAttack": true,
+      "ability": "str",
+      "abilityBonus": 0,
+      "def": "ac",
+      "defBonus": 0,
+      "formula": "@wepAttack+@powerMod+@lvhalf",
+      "damageType": {},
+      "effectType": {}
+    },
+    "hit": {
+      "shareDamageRoll": false,
+      "isDamage": true,
+      "isHealing": true,
+      "baseQuantity": "1",
+      "baseDiceType": "weapon",
+      "detail": "1[W] + Strength modifier damage.",
+      "formula": "@powBase + @powerMod + @wepDamage",
+      "critFormula": "@powMax + @powerMod + @wepDamage + @wepCritBonus",
+      "healFormula": "healing-formula"
+    },
+    "miss": {
+      "detail": "Half Damage.",
+      "formula": "@{damageFormula}/2"
+    },
+    "effect": {
+      "detail": ""
+    },
+    "trigger": "triggered",
+    "requirement": "requirements",
+    "special": "",
+    "specialAdd": {
+      "parts": []
+    },
+    "damageType": {
+      "damage": true,
+      "acid": true,
+      "cold": true,
+      "fire": true,
+      "force": true,
+      "lightning": true,
+      "necrotic": true,
+      "physical": true,
+      "poison": true,
+      "psychic": true,
+      "radiant": true,
+      "thunder": true
+    },
+    "effectType": {
+      "beast": true,
+      "beastForm": true,
+      "charm": true,
+      "conjuration": true,
+      "fear": true,
+      "healing": true,
+      "illusion": true,
+      "invigorating": true,
+      "poison": true,
+      "polymorph": true,
+      "rage": true,
+      "rattling": true,
+      "reliable": true,
+      "sleep": true,
+      "spirit": true,
+      "stance": true,
+      "summoning": true,
+      "teleportation": true,
+      "zone": true
+    }
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "permission": {
+    "default": 0,
+    "Et6JUHKi217cfq22": 3
+  },
+  "flags": {},
+  "_id": "87yM2o4rTRZLMKzE"
+}

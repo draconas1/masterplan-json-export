@@ -20,7 +20,7 @@ namespace EncounterExport
 
         public string Description => "Export the creatures and traps of the currently selected encounter project as json";
 
-        public string Name => "Export Encounter to Json";
+        public string Name => "Export Encounter to Json" + CommandState.GetSystemString;
 
         /// <summary>
         /// Executes this instance.

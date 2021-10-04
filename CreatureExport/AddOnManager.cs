@@ -36,6 +36,7 @@ namespace EncounterExport
                 _commands.Add(new ExportProjectCommand(app));
                 _commands.Add(new ExportEncounterCommand(app));
                 _commands.Add(new ExportEncounterAndSubsCommand(app));
+                _commands.Add(new SwitchSystemCommand(app));
                 AppDomain currentDomain = AppDomain.CurrentDomain;
                 currentDomain.AssemblyResolve += new ResolveEventHandler(LoadFromSameFolder);
             }

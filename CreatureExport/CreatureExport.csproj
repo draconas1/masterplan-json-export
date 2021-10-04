@@ -57,13 +57,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddOnManager.cs" />
+    <Compile Include="CommandState.cs" />
     <Compile Include="Common.cs" />
+    <Compile Include="FoundryCreatureHelper.cs" />
     <Compile Include="CreatureHelper.cs" />
     <Compile Include="ExportEncounterAndSubsCommand.cs" />
     <Compile Include="ExportEncounterCommand.cs" />
     <Compile Include="ExportProjectCommand.cs" />
+    <Compile Include="FoundryHelpers\FoundryPowerHelper.cs" />
+    <Compile Include="FoundryHelpers\FoundrySensesHelper.cs" />
+    <Compile Include="FoundryJSONClasses.cs" />
     <Compile Include="JSONBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SwitchSystemCommand.cs" />
     <Compile Include="TrapHelper.cs" />
     <Compile Include="UI\ResultForm.cs">
       <SubType>Form</SubType>
@@ -81,6 +87,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="creature.json" />
+    <Content Include="foundry-power-filled.json" />
+    <Content Include="foundry-power.json" />
     <Content Include="Roll20Api\Character-Ops.js" />
     <Content Include="Roll20Api\condition config.json" />
     <Content Include="Roll20Api\Masterplan-Common.js" />

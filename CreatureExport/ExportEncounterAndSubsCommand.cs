@@ -20,7 +20,7 @@ namespace EncounterExport
 
         public string Description => "Export the creatures and traps of the currently selected encounter and all sub-encounters as json";
 
-        public string Name => "Export Encounter and All Sub Plots to Json";
+        public string Name => "Export Encounter and All Sub Plots to Json" + CommandState.GetSystemString;
 
         /// <summary>
         /// Executes this instance.

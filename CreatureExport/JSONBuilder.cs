@@ -10,6 +10,12 @@ using Newtonsoft.Json.Converters;
 
 namespace EncounterExport
 {
+
+    public class EncounterCreature
+    {
+        public EncounterCard Card { get; set; }
+        public ICreature Creature { get; set; }
+    }
     public class JSONBuilder
     { 
         private readonly IApplication _mpApp;
@@ -21,48 +27,101 @@ namespace EncounterExport
         {
             try
             {
-                var encounterList = new List<EncounterOutput>();
-
-                foreach (var plotPoint in plotPoints)
+                object listToBeSerialised = null;
+                List<string> errors = null;
+                if (CommandState.SelectedSystem == OutputSystem.Roll20)
                 {
-                    if (plotPoint.Element is Encounter encounter)
+                    var encounterList = new List<Roll20EncounterOutput>();
+
+                    foreach (var plotPoint in plotPoints)
                     {
-                        var creatures = encounter.Slots.Select(y => y.Card)
-                            .Select(z => z.CreatureID)
-                            .Select(FindCreature)
-                            .Select(CreatureHelper.createCreature)
-                            .ToList();
-                        var traps = encounter.Traps.Select(TrapHelper.CreateTrap).ToList();
-
-                        var output = new EncounterOutput
+                        if (plotPoint.Element is Encounter encounter)
                         {
-                            Name = plotPoint.Name,
-                            Creatures = creatures.Select(x => x.Creature).ToList(),
-                            Errors = creatures.Select(x => x.Errors.Select(y => x.Name + ": " + y)).SelectMany(x => x)
-                                .ToList().Concat(traps.Select(x => x.Errors.Select(y => x.Name + ": " + y))
-                                    .SelectMany(x => x)).ToList(),
-                            Traps = traps.Select(x => x.Trap).ToList()
-                        };
+                            var creatures = encounter.Slots.Select(y => y.Card)
+                                .Select(z => FindCreature(z.CreatureID))
+                                .Select(CreatureHelper.createCreature)
+                                .ToList();
+                            var traps = encounter.Traps.Select(TrapHelper.CreateTrap).ToList();
 
-                        encounterList.Add(output);
+                            var output = new Roll20EncounterOutput
+                            {
+                                Name = plotPoint.Name,
+                                Creatures = creatures.Select(x => x.Creature).ToList(),
+                                Errors = creatures.Select(x => x.Errors.Select(y => x.Name + ": " + y)).SelectMany(x => x)
+                                    .ToList().Concat(traps.Select(x => x.Errors.Select(y => x.Name + ": " + y))
+                                        .SelectMany(x => x)).ToList(),
+                                Traps = traps.Select(x => x.Trap).ToList()
+                            };
+
+                            encounterList.Add(output);
+                        }
+
+                        if (plotPoint.Element is TrapElement trap)
+                        {
+                            var trapsOutput = TrapHelper.CreateTrap(trap.Trap);
+                            var output = new Roll20EncounterOutput
+                            {
+                                Name = plotPoint.Name,
+                                Errors = trapsOutput.Errors
+                            };
+                            output.Traps.Add(trapsOutput.Trap);
+                            encounterList.Add(output);
+                        }
                     }
 
-                    if (plotPoint.Element is TrapElement trap)
-                    {
-                        var trapsOutput = TrapHelper.CreateTrap(trap.Trap);
-                        var output = new EncounterOutput
-                        {
-                            Name = plotPoint.Name,
-                            Errors = trapsOutput.Errors
-                        };
-                        output.Traps.Add(trapsOutput.Trap);
-                        encounterList.Add(output);
-                    }
+                    listToBeSerialised = encounterList;
+                    errors = encounterList.Select(x => x.Errors).SelectMany(x => x).ToList();
                 }
+                
+                if (CommandState.SelectedSystem == OutputSystem.Foundry)
+                {
+                    var encounterList = new List<FoundryEncounterOutput>();
+                    foreach (var plotPoint in plotPoints)
+                    {
+                        if (plotPoint.Element is Encounter encounter)
+                        {
+                            var creatures = encounter.Slots.Select(y => y.Card)
+                                .Select(z => new EncounterCreature
+                                {
+                                    Card = z,
+                                    Creature = FindCreature(z.CreatureID)
+                                })
+                                .Select(FoundryCreatureHelper.CreateCreature)
+                                .ToList();
+                            var traps = encounter.Traps.Select(TrapHelper.CreateTrap).ToList();
 
-                var list = JsonConvert.SerializeObject(encounterList, Formatting.Indented, new StringEnumConverter());
+                            var output = new FoundryEncounterOutput
+                            {
+                                Name = plotPoint.Name,
+                                Creatures = creatures.Select(x => x.Creature).ToList(),
+                                Errors = creatures.Select(x => x.Errors.Select(y => x.Name + ": " + y)).SelectMany(x => x)
+                                    .ToList().Concat(traps.Select(x => x.Errors.Select(y => x.Name + ": " + y))
+                                        .SelectMany(x => x)).ToList(),
+                                Traps = traps.Select(x => x.Trap).ToList()
+                            };
 
-                var errors = encounterList.Select(x => x.Errors).SelectMany(x => x).ToList();
+                            encounterList.Add(output);
+                        }
+
+                        if (plotPoint.Element is TrapElement trap)
+                        {
+                            var trapsOutput = TrapHelper.CreateTrap(trap.Trap);
+                            var output = new FoundryEncounterOutput 
+                            {
+                                Name = plotPoint.Name,
+                                Errors = trapsOutput.Errors
+                            };
+                            output.Traps.Add(trapsOutput.Trap);
+                            encounterList.Add(output);
+                        }
+                    }
+                    listToBeSerialised = encounterList;
+                    errors = encounterList.Select(x => x.Errors).SelectMany(x => x).ToList();
+                }
+               
+
+                var list = JsonConvert.SerializeObject(listToBeSerialised, Formatting.Indented, new StringEnumConverter());
+                
                 var form = new ResultForm();
                 form.Open(list, errors);
             }
@@ -95,10 +154,20 @@ namespace EncounterExport
             return (ICreature) null;
         }
 
-        public class EncounterOutput
+        public class Roll20EncounterOutput
         {
             public String Name { get; set; }
             public List<OutputCreature> Creatures { get; set; } = new List<OutputCreature>();
+
+            public List<OutputTrap> Traps { get; set; } = new List<OutputTrap>();
+
+            public List<string> Errors { get; set; } = new List<string>();
+        }
+        
+        public class FoundryEncounterOutput
+        {
+            public String Name { get; set; }
+            public List<FoundryCreature> Creatures { get; set; } = new List<FoundryCreature>();
 
             public List<OutputTrap> Traps { get; set; } = new List<OutputTrap>();
 

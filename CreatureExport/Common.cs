@@ -2,18 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Masterplan.Data;
 
 namespace EncounterExport
 {
-
     public static class CommonHelpers
     {
-        public static readonly Regex entireDamageStrRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)([ ]*\+[ ]*([1-9][0-9]*)*)*",
+        public static string[] separator = {
+            ",",
+            ";",
+            ".",
+            ":",
+            Environment.NewLine
+        };
+
+        public static readonly Regex entireDamageStrRx = new Regex(
+            @"([1-9][0-9]*)d([12468][02]*)([ ]*\+[ ]*([1-9][0-9]*)*)*",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        
+
         private static readonly Regex damageDiceRx = new Regex(@"([1-9][0-9]*)d([12468][02]*)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         private static readonly Regex damagePlusRx = new Regex(@"\+[ ]*([1-9][0-9]*)*",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -26,6 +34,7 @@ namespace EncounterExport
             {
                 return parsedDamage;
             }
+
             var diceMatch = damageDiceRx.Match(damageStr);
             if (diceMatch.Success)
             {
@@ -49,7 +58,8 @@ namespace EncounterExport
                     var bonus = bonusMatch.Groups[1].Value;
                     if (!Int32.TryParse(bonus, out parsedDamage.Bonus))
                     {
-                        errors.Add("Unable to parse bonus damage for power " + context + ". " + damageStr + " regex found " +
+                        errors.Add("Unable to parse bonus damage for power " + context + ". " + damageStr +
+                                   " regex found " +
                                    bonus);
                     }
                 }
@@ -60,16 +70,17 @@ namespace EncounterExport
                 var hopefullyNumber = damageStr.Split(' ').First();
                 if (!Int32.TryParse(hopefullyNumber, out parsedDamage.Bonus))
                 {
-                    errors.Add("Unable to parse bonus damage for a power with a damage entry that does not include a dice roll. " + context + ". '" + damageStr +
-                               "'.  This is probably a text non damage attack power, but you may need to tweak the damage entry");
+                    errors.Add(
+                        "Unable to parse bonus damage for a power with a damage entry that does not include a dice roll. " +
+                        context + ". '" + damageStr +
+                        "'.  This is probably a text non damage attack power, but you may need to tweak the damage entry");
                 }
             }
 
             return parsedDamage;
         }
-        
     }
-    
+
     public class ParsedDamage
     {
         public int NumDice;
@@ -84,19 +95,19 @@ namespace EncounterExport
         {
             Name = name;
             Bonus = bonus;
-
         }
+
         public string Name { get; }
         public int Bonus { get; }
     }
-        
+
     public class NameDescValue : NameValue
     {
         public NameDescValue(string name, string desc, int bonus) : base(name, bonus)
         {
             Desc = desc;
         }
-            
+
         public string Desc { get; }
     }
 }

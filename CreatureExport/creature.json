@@ -1,0 +1,812 @@
+﻿{
+  "abilities": {
+    "str": {
+      "value": 12,
+      "chat": "@name uses @label.",
+      "mod": 1,
+      "modHalf": 1,
+      "prof": 0,
+      "saveBonus": 0,
+      "checkBonus": 0,
+      "save": 1,
+      "label": "Strength"
+    },
+    "con": {
+      "value": 13,
+      "chat": "@name uses @label.",
+      "mod": 1,
+      "modHalf": 1,
+      "prof": 0,
+      "saveBonus": 0,
+      "checkBonus": 0,
+      "save": 1,
+      "label": "Constitution"
+    },
+    "dex": {
+      "value": 17,
+      "chat": "@name uses @label.",
+      "mod": 3,
+      "modHalf": 3,
+      "prof": 0,
+      "saveBonus": 0,
+      "checkBonus": 0,
+      "save": 3,
+      "label": "Dexterity"
+    },
+    "int": {
+      "value": 10,
+      "chat": "@name uses @label.",
+      "mod": 0,
+      "modHalf": 0,
+      "prof": 0,
+      "saveBonus": 0,
+      "checkBonus": 0,
+      "save": 0,
+      "label": "Intelligence"
+    },
+    "wis": {
+      "value": 13,
+      "chat": "@name uses @label.",
+      "mod": 1,
+      "modHalf": 1,
+      "prof": 0,
+      "saveBonus": 0,
+      "checkBonus": 0,
+      "save": 1,
+      "label": "Wisdom"
+    },
+    "cha": {
+      "value": 12,
+      "chat": "@name uses @label.",
+      "mod": 1,
+      "modHalf": 1,
+      "prof": 0,
+      "saveBonus": 0,
+      "checkBonus": 0,
+      "save": 1,
+      "label": "Charisma"
+    }
+  },
+  "attributes": {
+    "hp": {
+      "value": 37,
+      "min": -18,
+      "max": 37,
+      "starting": 10,
+      "perlevel": 5,
+      "feat": 0,
+      "misc": 0,
+      "autototal": false,
+      "temprest": false,
+      "temphp": null
+    },
+    "init": {
+      "value": 3,
+      "ability": "dex",
+      "bonus": [
+        {}
+      ],
+      "notes": "",
+      "bonusValue": 0
+    }
+  },
+  "biography": "",
+  "actionpoints": {
+    "value": 1,
+    "encounteruse": false,
+    "effects": "",
+    "notes": "",
+    "custom": ""
+  },
+  "magicItemUse": {
+    "perDay": 1,
+    "bonusValue": 0,
+    "milestone": 0,
+    "dailyuse": 1,
+    "encounteruse": false
+  },
+  "defences": {
+    "ac": {
+      "value": 16,
+      "base": 16,
+      "ability": "dex",
+      "armour": 0,
+      "class": 0,
+      "feat": 0,
+      "enhance": 0,
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "light": true,
+      "altability": "",
+      "condition": "Conditional Bonuses.",
+      "chat": "@name defends with armour.",
+      "label": "AC",
+      "title": "Armour Class",
+      "bonusValue": 0
+    },
+    "fort": {
+      "value": 12,
+      "base": 12,
+      "ability": "con",
+      "armour": 0,
+      "class": 0,
+      "feat": 0,
+      "enhance": 0,
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "condition": "Conditional Bonuses.",
+      "chat": "@name defends with fortitude.",
+      "label": "Fort",
+      "title": "Fortitude Defense",
+      "bonusValue": 0
+    },
+    "ref": {
+      "value": 14,
+      "base": 14,
+      "ability": "dex",
+      "armour": 0,
+      "class": 0,
+      "feat": 0,
+      "enhance": 0,
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "condition": "Conditional Bonuses.",
+      "chat": "@name defends with reflexes.",
+      "label": "Ref",
+      "title": "Reflex Defense",
+      "bonusValue": 0
+    },
+    "wil": {
+      "value": 12,
+      "base": 12,
+      "ability": "wis",
+      "armour": 0,
+      "class": 0,
+      "feat": 0,
+      "enhance": 0,
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "condition": "Conditional Bonuses.",
+      "chat": "@name defends with willpower.",
+      "label": "Wil",
+      "title": "Will Defense",
+      "bonusValue": 0
+    }
+  },
+  "details": {
+    "level": 1,
+    "exp": 0,
+    "class": "",
+    "paragon": "",
+    "epic": "",
+    "race": "",
+    "size": "med",
+    "age": "",
+    "gender": "",
+    "height": "",
+    "weight": "",
+    "alignment": "",
+    "deity": "",
+    "secondwind": false,
+    "deathsaves": 3,
+    "deathsavefail": 0,
+    "deathsaveCrit": 20,
+    "deathsavebon": {
+      "bonus": [
+        {}
+      ],
+      "value": 0
+    },
+    "bloodied": 18,
+    "surgeValue": 9,
+    "surgeBon": {
+      "bonus": [
+        {}
+      ],
+      "value": 0
+    },
+    "surges": {
+      "value": 0,
+      "max": 0
+    },
+    "surgeEnv": {
+      "bonus": [
+        {}
+      ],
+      "value": 0
+    },
+    "secondwindbon": {
+      "bonus": [
+        {}
+      ],
+      "value": 0,
+      "custom": ""
+    },
+    "saves": {
+      "bonus": [
+        {
+          "name": "type",
+          "value": "2",
+          "active": true,
+          "note": ""
+        }
+      ],
+      "value": 2
+    },
+    "origin": "fey",
+    "type": "beast",
+    "other": "",
+    "role": {
+      "primary": "skirmisher",
+      "secondary": "elite"
+    },
+    "advancedCals": false,
+    "secondWindValue": 9,
+    "isBloodied": false,
+    "tier": 1
+  },
+  "languages": {
+    "spoken": {
+      "value": [],
+      "custom": ""
+    },
+    "script": {
+      "value": [],
+      "custom": ""
+    }
+  },
+  "senses": {
+    "vision": {
+      "value": [],
+      "custom": ""
+    },
+    "special": {
+      "value": [],
+      "custom": ""
+    },
+    "notes": ""
+  },
+  "movement": {
+    "base": {
+      "value": 6,
+      "base": 6,
+      "armour": 0,
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "bonusValue": 0
+    },
+    "walk": {
+      "value": 6,
+      "formula": "@base + @armour",
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "bonusValue": 0
+    },
+    "charge": {
+      "value": 6,
+      "formula": "@base + @armour",
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "bonusValue": 0
+    },
+    "run": {
+      "value": 8,
+      "formula": "@base + @armour + 2",
+      "bonus": [
+        {}
+      ],
+      "misc": 0,
+      "temp": 0,
+      "bonusValue": 0
+    },
+    "climb": {
+      "value": 3,
+      "formula": "(@base + @armour)/2",
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "bonusValue": 0
+    },
+    "shift": {
+      "value": 1,
+      "formula": "1",
+      "bonus": [
+        {}
+      ],
+      "temp": 0,
+      "bonusValue": 0
+    },
+    "notes": ""
+  },
+  "resources": {
+    "primary": {
+      "value": 0,
+      "max": 0,
+      "sr": 0,
+      "lr": 0
+    },
+    "secondary": {
+      "value": 0,
+      "max": 0,
+      "sr": 0,
+      "lr": 0
+    },
+    "tertiary": {
+      "value": 0,
+      "max": 0,
+      "sr": 0,
+      "lr": 0
+    }
+  },
+  "skills": {
+    "acr": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "dex",
+      "armourCheck": true,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 3,
+      "total": 0,
+      "label": "Acrobatics"
+    },
+    "arc": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "int",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 0,
+      "total": 0,
+      "label": "Arcana"
+    },
+    "ath": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "str",
+      "armourCheck": true,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Athletics"
+    },
+    "blu": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "cha",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Bluff"
+    },
+    "dip": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "cha",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Diplomacy"
+    },
+    "dun": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "wis",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Dungeoneering"
+    },
+    "end": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "con",
+      "armourCheck": true,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Endurance"
+    },
+    "hea": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "wis",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Healing"
+    },
+    "his": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "int",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 0,
+      "total": 0,
+      "label": "History"
+    },
+    "ins": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "wis",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Insight"
+    },
+    "itm": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "cha",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Intimidation"
+    },
+    "nat": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "wis",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Nature"
+    },
+    "prc": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "wis",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Perception"
+    },
+    "rel": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "int",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 0,
+      "total": 0,
+      "label": "Religion"
+    },
+    "stl": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "dex",
+      "armourCheck": true,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 3,
+      "total": 0,
+      "label": "Stealth"
+    },
+    "stw": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "cha",
+      "armourCheck": false,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 1,
+      "total": 0,
+      "label": "Streetwise"
+    },
+    "thi": {
+      "value": 0,
+      "base": 0,
+      "bonus": [
+        {}
+      ],
+      "ability": "dex",
+      "armourCheck": true,
+      "chat": "@name uses @label.",
+      "armourPen": 0,
+      "sklBonusValue": 0,
+      "effectBonus": 0,
+      "mod": 3,
+      "total": 0,
+      "label": "Thievery"
+    }
+  },
+  "passive": {
+    "pasprc": {
+      "value": 10,
+      "skill": "prc",
+      "bonus": [
+        {}
+      ],
+      "bonusValue": 0
+    },
+    "pasins": {
+      "value": 10,
+      "skill": "ins",
+      "bonus": [
+        {}
+      ],
+      "bonusValue": 0
+    }
+  },
+  "resistances": {
+    "damage": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Damage"
+    },
+    "physical": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Physical"
+    },
+    "acid": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Acid"
+    },
+    "cold": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Cold"
+    },
+    "fire": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Fire"
+    },
+    "force": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Force"
+    },
+    "lightning": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Lightning"
+    },
+    "necrotic": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Necrotic"
+    },
+    "poison": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Poison"
+    },
+    "psychic": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Psychic"
+    },
+    "radiant": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Radiant"
+    },
+    "thunder": {
+      "value": 0,
+      "armour": 0,
+      "temp": 0,
+      "immune": false,
+      "bonus": [
+        {}
+      ],
+      "resBonusValue": 0,
+      "label": "Thunder"
+    }
+  },
+  "encumbrance": {
+    "value": 0,
+    "max": 120,
+    "maxHeavy": 240,
+    "maxMax": 600,
+    "formulaNorm": "@abilities.str.value * 10",
+    "formulaHeavy": "@abilities.str.value * 20",
+    "formulaMax": "@abilities.str.value * 50",
+    "pbc": 0,
+    "pec": 1,
+    "encumBar": "#6c8aa5",
+    "encumbered": false
+  },
+  "currency": {
+    "ad": 0,
+    "pp": 0,
+    "gp": 0,
+    "sp": 0,
+    "cp": 0
+  },
+  "ritualcomp": {
+    "ar": 0,
+    "ms": 0,
+    "rh": 0,
+    "si": 0,
+    "rs": 0
+  },
+  "advancedCals": false,
+  "powerGroupTypes": "action",
+  "powerSortTypes": "actionType"
+}

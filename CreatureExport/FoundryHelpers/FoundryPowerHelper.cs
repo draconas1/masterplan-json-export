@@ -210,7 +210,8 @@ namespace EncounterExport.FoundryHelpers
                 }
             }
             powerData.hit.detail = powerData.hit.detail.Replace("\r\n", "");
-
+            powerData.level = powerData.basicAttack ? "B" : "";
+            
             if (powerData.isMelee)
             {
                 resultPower.img = powerData.basicAttack

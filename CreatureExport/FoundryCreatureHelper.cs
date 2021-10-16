@@ -18,10 +18,10 @@ namespace EncounterExport
             var input = encounterCreature.Creature;
             try
             {
-                List<String> errors = new List<string>();
+                List<string> errors = new List<string>();
                 var result = new FoundryCreatureData();
                 var monsterKnowledgeHardDescription = new FoundryPowerDescription();
-                //result.original = input;
+
                 result.name = input.Name;
                 result.abilities.str.value = input.Strength.Score;
                 result.abilities.con.value = input.Constitution.Score;
@@ -202,7 +202,7 @@ namespace EncounterExport
                     output.Creature.creature = input;
                 }
 
-                GenerateMonsterKnowledgeBlocks(output, monsterKnowledgeHardDescription);
+                GenerateMonsterKnowledgeBlocks(output, input, monsterKnowledgeHardDescription);
                 
                 var usefulStuff = new FoundryTrait
                 {
@@ -224,6 +224,7 @@ namespace EncounterExport
         }
 
         private static void GenerateMonsterKnowledgeBlocks(FoundryCreatureAndErrors creatureAndErrors,
+            ICreature creature,
             FoundryPowerDescription hardDescription)
         {
             var medKnowledge = new FoundryTrait
@@ -237,7 +238,7 @@ namespace EncounterExport
             description.value += $"<h1>{creatureAndErrors.Name}</h1>\n";
             var data = creatureAndErrors.Creature.Data;
             var secondaryType = data.details.role.secondary == "regular" ? "" : data.details.role.secondary;
-            description.value += $"<p><b>Role: </b>level {data.details.level} {secondaryType} {data.details.role.primary}";
+            description.value += $"<p><b>Role: </b>level {data.details.level} {creature.Size} {secondaryType} {data.details.role.primary}";
             if (data.details.role.leader)
             {
                 description.value += " (leader)</p>\n";

@@ -18,8 +18,9 @@ namespace EncounterExport
             var input = encounterCreature.Creature;
             try
             {
-                List<string> errors = new List<string>();
-                var result = new FoundryCreatureData();
+                var output = new FoundryCreatureAndErrors();
+                List<string> errors = output.Errors;
+                var result = output.Creature.Data;
                 var monsterKnowledgeHardDescription = new FoundryPowerDescription();
 
                 result.name = input.Name;
@@ -43,7 +44,7 @@ namespace EncounterExport
                 var details = result.details;
                 details.bloodied = input.HP / 2;
                 details.surgeValue = input.HP / 4;
-                details.surges.value = 1;
+                details.surges.value = input.Level / 10 + 1;
                 details.origin = input.Origin.ToString().ToLowerInvariant();
                 details.typeValue = input.Type.ToString().ToLowerInvariant();
                 details.level = input.Level;
@@ -157,15 +158,12 @@ namespace EncounterExport
 
                 result.senses = FoundrySensesHelper.ProcessSenses(input.Senses);
 
-                result.auras = ProcessAuras(input, result, errors);
-
                 ProcessDamageModifiers(input, result, monsterKnowledgeHardDescription);
 
                 AddValueToBio(input.Equipment, "Equipment", result);
 
-                List<FoundryPower> powers = new List<FoundryPower>();
-                List<FoundryTrait> traits = new List<FoundryTrait>();
-
+                List<FoundryPower> powers = output.Creature.Powers;
+                List<FoundryTrait> traits = output.Creature.Traits;
                 foreach (var power in input.CreaturePowers)
                 {
                     if (power.Category == CreaturePowerCategory.Trait)
@@ -186,17 +184,13 @@ namespace EncounterExport
                 }
                 
                 powers.Sort(new PowerComparer());
-
-                var output = new FoundryCreatureAndErrors
+                
+                var auras = ProcessAuras(input, result, errors);
+                if (auras != null)
                 {
-                    Creature =
-                    {
-                        Data = result,
-                        Powers = powers,
-                        Traits = traits
-                    },
-                    Errors = errors
-                };
+                    output.Creature.Token.flags["token-auras"] = auras;
+                }
+         
                 if (DEBUG)
                 {
                     output.Creature.creature = input;
@@ -559,32 +553,59 @@ namespace EncounterExport
             return skillsHolder;
         }
 
-        private static List<NameDescValue> ProcessAuras(ICreature input, FoundryCreatureData output,
+        private static Dictionary<string, object> ProcessAuras(ICreature input, FoundryCreatureData output,
             List<string> errors)
         {
             if (input.Auras != null && input.Auras.Any())
             {
-                var auras = new List<NameDescValue>();
+                // auras module format is aura1 & 2 are named flags (those are the UI ones), whilst 3+ are programatic only and stored in the auras array.  
+                var auras = new Dictionary<string, object>();
+                var extraAurasList = new List<FoundryTokenAuraData>();
+                auras["auras"] = extraAurasList;
                 output.biography += "<h1>Auras</h1>\n";
+                int index = 0;
+                
                 foreach (var aura in input.Auras)
                 {
                     var removeAuraWord = aura.Details.ToLower().Trim().StartsWith("aura")
                         ? aura.Details.Trim().Substring(4)
                         : aura.Details;
                     var firstPart = Regex.Split(removeAuraWord.Trim(), @"[ :;]")[0];
-
+                    index++;
+                    string colour = "#ffffff";
+                    switch (index)
+                    {
+                        case 1: colour = "#FFFF99";
+                            break;
+                        case 2: colour = "#59E594";
+                            break;
+                        case 3: colour = "#C27BA0";
+                            break;
+                    }
+                    var foundryAura = new FoundryTokenAuraData
+                    {
+                        colour = colour
+                    };
                     if (Int32.TryParse(firstPart, out var dist))
                     {
-                        auras.Add(new NameDescValue(aura.Name, aura.Details, dist));
+                        foundryAura.distance = dist;
                     }
                     else
                     {
-                        auras.Add(new NameDescValue(aura.Name, aura.Details, 1));
                         errors.Add("Unable to parse distance for aura: " + aura.Name + ": '" + aura.Details + "'");
                     }
 
-                    output.biography += "<h2>" + aura.Name + "</h2>\n";
-                    output.biography += "<p>" + aura.Details + "</p>\n";
+                    if (index <= 2)
+                    {
+                        auras[$"aura{index}"] = foundryAura;
+                    }
+                    else
+                    {
+                        extraAurasList.Add(foundryAura);
+                    }
+
+                    output.biography += $"<h2>{aura.Name}</h2>\n";
+                    output.biography += $"<p>{aura.Details}</p>\n";
                 }
 
                 return auras;

@@ -8,7 +8,7 @@ namespace EncounterExport
     public class FoundryCreatureAndErrors
     {
         public FoundryCreature Creature { get; set; } = new FoundryCreature();
-        public List<String> Errors { get; set; }
+        public List<String> Errors { get; set; } = new List<string>();
         public bool HasError => Errors != null && Errors.Count > 0;
         public string Name => Creature.Name;
     }
@@ -32,17 +32,32 @@ namespace EncounterExport
     public class FoundryCreature
     {
         public string Name => Data.name;
-        public FoundryCreatureData Data { get; set; }
+        public FoundryCreatureData Data { get; set; } = new FoundryCreatureData();
+        public FoundryTokenData Token { get; set; } = new FoundryTokenData();
         
-        public List<FoundryPower> Powers { get; set; }
+        public List<FoundryPower> Powers { get; set; } = new List<FoundryPower>();
         
-        public List<FoundryTrait> Traits { get; set; }
+        public List<FoundryTrait> Traits { get; set; } = new List<FoundryTrait>();
         
         public object creature { get; set; }
         public object card { get; set; }
     }
     
-  
+    public class FoundryTokenData
+    {
+        public bool actorLink { get; set; } = false;
+        public int displayBars { get; set; } = 40; //OWNER
+        public Dictionary<string, object> flags { get; set; } = new Dictionary<string, object>();
+    }
+
+    public class FoundryTokenAuraData
+    {
+        public int distance { get; set; } = 1;
+        public string colour { get; set; }
+        public double opacity { get; set; } = 0.3;
+        public bool square { get; set; } = true;
+        public string permission { get; set; } = "all";
+    }
 
     public class Movement
     {

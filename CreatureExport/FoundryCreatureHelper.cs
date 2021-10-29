@@ -44,7 +44,7 @@ namespace EncounterExport
                 var details = result.details;
                 details.bloodied = input.HP / 2;
                 details.surgeValue = input.HP / 4;
-                details.surges.value = input.Level / 10 + 1;
+                details.surges.value = (Math.Min(input.Level - 1, 1) / 10) + 1;
                 details.origin = input.Origin.ToString().ToLowerInvariant();
                 details.typeValue = input.Type.ToString().ToLowerInvariant();
                 details.level = input.Level;
@@ -185,7 +185,7 @@ namespace EncounterExport
                 
                 powers.Sort(new PowerComparer());
                 
-                var auras = ProcessAuras(input, result, errors);
+                var auras = ProcessAuras(input, result, errors, monsterKnowledgeHardDescription);
                 if (auras != null)
                 {
                     output.Creature.Token.flags["token-auras"] = auras;
@@ -279,16 +279,6 @@ namespace EncounterExport
                 foreach (var trait in creatureAndErrors.Creature.Traits)
                 {
                     hardDescription.value += $"<tr><td><b>{trait.name}</b></td><td>{trait.data.description.value}</td></tr>\n";
-                }
-                hardDescription.value += $"</table>\n";
-            }
-            
-            if (creatureAndErrors.Creature.Data.auras != null && creatureAndErrors.Creature.Data.auras.Any())
-            {
-                hardDescription.value += $"<h2>Auras</h2>\n<table>";
-                foreach (var aura in creatureAndErrors.Creature.Data.auras)
-                {
-                    hardDescription.value += $"<tr><td><b>{aura.Name}</b></td><td>{aura.Desc}</td></tr>\n";
                 }
                 hardDescription.value += $"</table>\n";
             }
@@ -554,7 +544,7 @@ namespace EncounterExport
         }
 
         private static Dictionary<string, object> ProcessAuras(ICreature input, FoundryCreatureData output,
-            List<string> errors)
+            List<string> errors, FoundryPowerDescription hardDescription)
         {
             if (input.Auras != null && input.Auras.Any())
             {
@@ -563,6 +553,7 @@ namespace EncounterExport
                 var extraAurasList = new List<FoundryTokenAuraData>();
                 auras["auras"] = extraAurasList;
                 output.biography += "<h1>Auras</h1>\n";
+                hardDescription.value += $"<h2>Auras</h2>\n<table>";
                 int index = 0;
                 
                 foreach (var aura in input.Auras)
@@ -606,8 +597,9 @@ namespace EncounterExport
 
                     output.biography += $"<h2>{aura.Name}</h2>\n";
                     output.biography += $"<p>{aura.Details}</p>\n";
+                    hardDescription.value += $"<tr><td><b>{aura.Name}</b></td><td>{aura.Details}</td></tr>\n";
                 }
-
+                hardDescription.value += $"</table>\n";
                 return auras;
             }
 

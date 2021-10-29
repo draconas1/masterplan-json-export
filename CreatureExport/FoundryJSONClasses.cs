@@ -25,7 +25,6 @@ namespace EncounterExport
         public Skills skills { get; set; } = new Skills();
         public string biography { get; set; } = "";
         public Senses senses { get; set; } = new Senses();
-        public List<NameDescValue> auras { get; set; }
         public Dictionary<string, DamageMod> resistances { get; set; } = new Dictionary<string, DamageMod>();
     }
 
@@ -34,11 +33,8 @@ namespace EncounterExport
         public string Name => Data.name;
         public FoundryCreatureData Data { get; set; } = new FoundryCreatureData();
         public FoundryTokenData Token { get; set; } = new FoundryTokenData();
-        
         public List<FoundryPower> Powers { get; set; } = new List<FoundryPower>();
-        
         public List<FoundryTrait> Traits { get; set; } = new List<FoundryTrait>();
-        
         public object creature { get; set; }
         public object card { get; set; }
     }
@@ -259,7 +255,7 @@ namespace EncounterExport
         
         public string level { get; set; } = "";
         public List<string> keywords { get; set; } = new List<string>();
-        public string powersource { get; set; } 
+        public string powersource { get; set; } = "";
         public string subName { get; set; }
         public bool prepared { get; set; } = true;
         public string powerType { get; set; } = "class";

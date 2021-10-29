@@ -22,8 +22,64 @@ namespace EncounterExport.FoundryHelpers
             "thunder"
         };
 
+        private static readonly string[] EffectTypes =
+        {
+            "augmentable",
+            "aura",
+            "beast",
+            "beastForm",
+            "beast form",
+            "channelDiv",
+            "channel divinity",
+            "charm",
+            "conjuration",
+            "disease",
+            "elemental",
+            "evocation",
+            "fear",
+            "fullDis",
+            "full discipline",
+            "gaze",
+            "healing",
+            "illusion",
+            "invigorating",
+            "mount",
+            "necro",
+            "necromancy",
+            "nether",
+            "nethermancy",
+            "poison",
+            "polymorph",
+            "rage",
+            "rattling",
+            "reliable",
+            "runic",
+            "sleep",
+            "spirit",
+            "stance",
+            "summoning",
+            "teleportation",
+            "transmutation",
+            "zone"
+        };
+
         private static readonly HashSet<string> ElementalDamageTypeSet = new HashSet<string>(ElementalDamageTypes);
         
+        private static readonly HashSet<string> EffectTypeSet = new HashSet<string>(EffectTypes);
+
+        private static readonly Dictionary<string, string> EffectTypeLookup = BuildEffectLookup();
+
+        private static Dictionary<string, string> BuildEffectLookup()
+        {
+            var dict = new Dictionary<string, string>();
+            dict["beast form"] = "beastForm";
+            dict["channel divinity"] = "channelDiv";
+            dict["full discipline"] = "fullDis";
+            dict["necromancy"] = "necro";
+            dict["nethermancy"] = "nether";
+            return dict;
+        }
+            
         public static FoundryPower ProcessAction(CreaturePower power, List<string> errors,
             bool attackPower)
         {
@@ -37,8 +93,21 @@ namespace EncounterExport.FoundryHelpers
 
             foreach (var powerDataKeyword in powerData.keywords)
             {
-                powerData.damageType.Add(powerDataKeyword.ToLowerInvariant(), true);
-                powerData.effectType.Add(powerDataKeyword.ToLowerInvariant(), true);
+                if (ElementalDamageTypeSet.Contains(powerDataKeyword.ToLowerInvariant()))
+                {
+                    powerData.damageType.Add(powerDataKeyword.ToLowerInvariant(), true);
+                }
+            
+                if (EffectTypeSet.Contains(powerDataKeyword.ToLowerInvariant()))
+                {
+                    var effectType = powerDataKeyword.ToLowerInvariant();
+                    if (EffectTypeLookup.ContainsKey(effectType))
+                    {
+                        effectType = EffectTypeLookup[effectType];
+                    }
+                    
+                    powerData.effectType.Add(effectType, true);
+                }
             }
 
             var detailString = $"{power.Action.Action}, {power.Action.Use}, ";

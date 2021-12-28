@@ -35,6 +35,7 @@ namespace EncounterExport.FoundryHelpers
             "conjuration",
             "disease",
             "elemental",
+            "enchantment",
             "evocation",
             "fear",
             "fullDis",
@@ -346,8 +347,12 @@ namespace EncounterExport.FoundryHelpers
         private static void ProcessRangeAndWeapon(CreaturePower power, FoundryPowerData data, List<string> errors)
         {
             var range = power.Range;
-            // var weapon = data.keywords.Contains("weapon") || data.keywords.Contains("Weapon");
-            // var implement = data.keywords.Contains("implement") || data.keywords.Contains("Implement");
+            var weapon = data.keywords.Contains("weapon") || data.keywords.Contains("Weapon");
+            var implement = data.keywords.Contains("implement") || data.keywords.Contains("Implement");
+            if (implement)
+            {
+                data.weaponType = "implement";
+            }
             try
             {
                 var hasMatched = false;
@@ -358,6 +363,10 @@ namespace EncounterExport.FoundryHelpers
                         data.rangeType = "rangeBurst";
                         data.rangePower = Int32.Parse(match.Groups[2].Value);
                         data.area = Int32.Parse(match.Groups[1].Value);
+                        if (weapon)
+                        {
+                            data.weaponType = "range";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -367,6 +376,10 @@ namespace EncounterExport.FoundryHelpers
                     {
                         data.rangeType = "closeBlast";
                         data.area = Int32.Parse(match.Groups[1].Value);
+                        if (weapon)
+                        {
+                            data.weaponType = "melee";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -376,6 +389,10 @@ namespace EncounterExport.FoundryHelpers
                     {
                         data.rangeType = "closeBurst";
                         data.area = Int32.Parse(match.Groups[1].Value);
+                        if (weapon)
+                        {
+                            data.weaponType = "melee";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -386,6 +403,10 @@ namespace EncounterExport.FoundryHelpers
                         data.rangeType = "melee";
                         data.rangePower = Int32.Parse(match.Groups[1].Value);
                         data.isMelee = true;
+                        if (weapon)
+                        {
+                            data.weaponType = "melee";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -395,6 +416,10 @@ namespace EncounterExport.FoundryHelpers
                     {
                         data.rangeType = "range";
                         data.rangePower = Int32.Parse(match.Groups[1].Value);
+                        if (weapon)
+                        {
+                            data.weaponType = "range";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -405,6 +430,10 @@ namespace EncounterExport.FoundryHelpers
                         data.rangeType = "reach";
                         data.rangePower = Int32.Parse(match.Groups[1].Value);
                         data.isMelee = true;
+                        if (weapon)
+                        {
+                            data.weaponType = "melee";
+                        }
                         hasMatched = true;
                     }
                 }

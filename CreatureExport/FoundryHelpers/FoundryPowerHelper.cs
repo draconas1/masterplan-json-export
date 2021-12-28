@@ -205,6 +205,13 @@ namespace EncounterExport.FoundryHelpers
 
             // sometimes details are in the range field for traits
             powerData.effect.detail = string.IsNullOrEmpty(power.Details) ? power.Range : power.Details;
+            
+            // if however we now have an identical target and range should fix that to avoid duplicate descriptions
+            if (powerData.effect.detail == powerData.target)
+            {
+                powerData.target = null;
+            }
+            
             if (!attackPower)
             {
                 detailString += $"{powerData.effect.detail}";

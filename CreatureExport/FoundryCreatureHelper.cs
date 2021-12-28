@@ -343,15 +343,16 @@ namespace EncounterExport
                 var vunerables = "";
                 foreach (var mod in input.DamageModifiers)
                 {
-                    var str = ", " + mod.Value + " " + mod.Type;
+                    var str = ", " + Math.Abs(mod.Value) + " " + mod.Type;
+                    var flippedVal = mod.Value * -1;
 
                     if (mod.Value < 0)
                     {
-                        resistances += str;
+                        vunerables += str;
                     }
                     else if (mod.Value > 0)
                     {
-                        vunerables += str;
+                        resistances += str;
                     }
 
 
@@ -366,7 +367,7 @@ namespace EncounterExport
                     {
                         var bonus = new Bonus()
                         {
-                            value = mod.Value,
+                            value = flippedVal,
                             name = "Monster"
                         };
                         damageMod.bonus.Add(bonus);

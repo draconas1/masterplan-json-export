@@ -199,6 +199,7 @@ namespace EncounterExport
     }
     public class FoundryPower
     {
+        public string _id { get; set; }
         public string name { get; set; }
         public string type { get; set; } = "power";
         public string img { get; set; } = "icons/svg/aura.svg";
@@ -209,6 +210,11 @@ namespace EncounterExport
     {
         public int Compare(FoundryPower x, FoundryPower y)
         {
+            if (x == null && y == null)
+            {
+                return 0;
+            } 
+            
             if (x == null)
             {
                 return 1;

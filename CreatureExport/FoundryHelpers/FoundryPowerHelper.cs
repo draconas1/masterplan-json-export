@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Masterplan.Data;
 
@@ -8,6 +9,20 @@ namespace EncounterExport.FoundryHelpers
 {
     public static class FoundryPowerHelper
     {
+        private static readonly char[] validIdChars = BuildIdCharsArray();
+        private static char[] BuildIdCharsArray()
+        {
+            StringBuilder builder = new StringBuilder();
+            Enumerable
+                .Range(65, 26)
+                .Select(e => ((char)e).ToString())
+                .Concat(Enumerable.Range(97, 26).Select(e => ((char)e).ToString()))
+                .Concat(Enumerable.Range(0, 10).Select(e => e.ToString()))
+                .OrderBy(e => Guid.NewGuid())
+                .ToList().ForEach(e => builder.Append(e));
+            return builder.ToString().ToCharArray();
+        }
+        
         private static readonly string[] ElementalDamageTypes =
         {
             "acid",
@@ -80,13 +95,24 @@ namespace EncounterExport.FoundryHelpers
             dict["nethermancy"] = "nether";
             return dict;
         }
+        
+        private static string newId(int length = 16) {
+            StringBuilder builder = new StringBuilder();
+            Random rnd = new Random();
+            for (int i = 0; i < length; i++)
+            {
+                builder.Append(validIdChars[rnd.Next(validIdChars.Length)]);
+            }
+            return builder.ToString();
+        }
             
         public static FoundryPower ProcessAction(CreaturePower power, List<string> errors,
             bool attackPower)
         {
             var resultPower = new FoundryPower
             {
-                name = power.Name
+                name = power.Name,
+                _id = newId()
             };
             var powerData = resultPower.data;
             powerData.keywords = power.Keywords.Split(CommonHelpers.separator, StringSplitOptions.RemoveEmptyEntries)

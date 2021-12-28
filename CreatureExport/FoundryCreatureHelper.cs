@@ -44,7 +44,7 @@ namespace EncounterExport
                 var details = result.details;
                 details.bloodied = input.HP / 2;
                 details.surgeValue = input.HP / 4;
-                details.surges.value = (Math.Min(input.Level - 1, 1) / 10) + 1;
+                details.surges.value = (Math.Max(input.Level - 1, 1) / 10) + 1;
                 details.origin = input.Origin.ToString().ToLowerInvariant();
                 details.typeValue = input.Type.ToString().ToLowerInvariant();
                 details.level = input.Level;

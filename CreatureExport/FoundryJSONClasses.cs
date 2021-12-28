@@ -271,7 +271,8 @@ namespace EncounterExport
         public string rangeText { get; set; } = "";
         public int rangePower { get; set; }
         public int area { get; set; } = 0;
-        public string rechargeRoll { get; set; } = "";
+        public int? rechargeRoll { get; set; }
+        public string rechargeCondition { get; set; } = "";
         public bool damageShare { get; set; } = false;
         public bool postEffect { get; set; } = true;
         public bool postSpecial { get; set; } = true;

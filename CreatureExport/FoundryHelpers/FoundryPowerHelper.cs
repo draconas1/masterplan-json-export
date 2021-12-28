@@ -144,7 +144,35 @@ namespace EncounterExport.FoundryHelpers
             powerData.rangeText = power.Range;
 
             powerData.target = power.Range;
-            powerData.rechargeRoll = power.Action.Recharge;
+            
+            powerData.rechargeCondition = power.Action.Recharge;
+            if (power.Action.Recharge != null)
+            {
+                switch (power.Action.Recharge)
+                {
+                    case PowerAction.RECHARGE_2: powerData.rechargeRoll = 2;
+                        break;
+                    case PowerAction.RECHARGE_3: powerData.rechargeRoll = 3;
+                        break;
+                    case PowerAction.RECHARGE_4: powerData.rechargeRoll = 4;
+                        break;
+                    case PowerAction.RECHARGE_5: powerData.rechargeRoll = 5;
+                        break;
+                    case PowerAction.RECHARGE_6: powerData.rechargeRoll = 6;
+                        break;
+                    default:
+                        try
+                        {
+                            powerData.rechargeRoll = Int32.Parse(power.Action.Recharge.Trim());
+                        }
+                        catch (Exception)
+                        {
+                            // do nothing, its probably a text condition
+                        }
+
+                        break;
+                }
+            }
 
             powerData.chatFlavor = power.Description;
             powerData.sustain.actionType = power.Action.SustainAction.ToString().ToLowerInvariant();

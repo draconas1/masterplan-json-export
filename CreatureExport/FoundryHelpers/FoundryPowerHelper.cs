@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Masterplan.Data;
 
@@ -8,6 +9,20 @@ namespace EncounterExport.FoundryHelpers
 {
     public static class FoundryPowerHelper
     {
+        private static readonly char[] validIdChars = BuildIdCharsArray();
+        private static char[] BuildIdCharsArray()
+        {
+            StringBuilder builder = new StringBuilder();
+            Enumerable
+                .Range(65, 26)
+                .Select(e => ((char)e).ToString())
+                .Concat(Enumerable.Range(97, 26).Select(e => ((char)e).ToString()))
+                .Concat(Enumerable.Range(0, 10).Select(e => e.ToString()))
+                .OrderBy(e => Guid.NewGuid())
+                .ToList().ForEach(e => builder.Append(e));
+            return builder.ToString().ToCharArray();
+        }
+        
         private static readonly string[] ElementalDamageTypes =
         {
             "acid",
@@ -35,6 +50,7 @@ namespace EncounterExport.FoundryHelpers
             "conjuration",
             "disease",
             "elemental",
+            "enchantment",
             "evocation",
             "fear",
             "fullDis",
@@ -79,13 +95,24 @@ namespace EncounterExport.FoundryHelpers
             dict["nethermancy"] = "nether";
             return dict;
         }
+        
+        private static string newId(int length = 16) {
+            StringBuilder builder = new StringBuilder();
+            Random rnd = new Random();
+            for (int i = 0; i < length; i++)
+            {
+                builder.Append(validIdChars[rnd.Next(validIdChars.Length)]);
+            }
+            return builder.ToString();
+        }
             
         public static FoundryPower ProcessAction(CreaturePower power, List<string> errors,
             bool attackPower)
         {
             var resultPower = new FoundryPower
             {
-                name = power.Name
+                name = power.Name,
+                _id = newId()
             };
             var powerData = resultPower.data;
             powerData.keywords = power.Keywords.Split(CommonHelpers.separator, StringSplitOptions.RemoveEmptyEntries)
@@ -143,13 +170,48 @@ namespace EncounterExport.FoundryHelpers
             powerData.rangeText = power.Range;
 
             powerData.target = power.Range;
-            powerData.rechargeRoll = power.Action.Recharge;
+            
+            powerData.rechargeCondition = power.Action.Recharge;
+            if (power.Action.Recharge != null)
+            {
+                switch (power.Action.Recharge)
+                {
+                    case PowerAction.RECHARGE_2: powerData.rechargeRoll = 2;
+                        break;
+                    case PowerAction.RECHARGE_3: powerData.rechargeRoll = 3;
+                        break;
+                    case PowerAction.RECHARGE_4: powerData.rechargeRoll = 4;
+                        break;
+                    case PowerAction.RECHARGE_5: powerData.rechargeRoll = 5;
+                        break;
+                    case PowerAction.RECHARGE_6: powerData.rechargeRoll = 6;
+                        break;
+                    default:
+                        try
+                        {
+                            powerData.rechargeRoll = Int32.Parse(power.Action.Recharge.Trim());
+                        }
+                        catch (Exception)
+                        {
+                            // do nothing, its probably a text condition
+                        }
+
+                        break;
+                }
+            }
 
             powerData.chatFlavor = power.Description;
             powerData.sustain.actionType = power.Action.SustainAction.ToString().ToLowerInvariant();
 
             // sometimes details are in the range field for traits
             powerData.effect.detail = string.IsNullOrEmpty(power.Details) ? power.Range : power.Details;
+            
+            // if however we now have an identical target and range should fix that to avoid duplicate descriptions
+            if (powerData.effect.detail == powerData.target)
+            {
+                powerData.target = null;
+            }
+            
             if (!attackPower)
             {
                 detailString += $"{powerData.effect.detail}";
@@ -346,8 +408,12 @@ namespace EncounterExport.FoundryHelpers
         private static void ProcessRangeAndWeapon(CreaturePower power, FoundryPowerData data, List<string> errors)
         {
             var range = power.Range;
-            // var weapon = data.keywords.Contains("weapon") || data.keywords.Contains("Weapon");
-            // var implement = data.keywords.Contains("implement") || data.keywords.Contains("Implement");
+            var weapon = data.keywords.Contains("weapon") || data.keywords.Contains("Weapon");
+            var implement = data.keywords.Contains("implement") || data.keywords.Contains("Implement");
+            if (implement)
+            {
+                data.weaponType = "implement";
+            }
             try
             {
                 var hasMatched = false;
@@ -358,6 +424,10 @@ namespace EncounterExport.FoundryHelpers
                         data.rangeType = "rangeBurst";
                         data.rangePower = Int32.Parse(match.Groups[2].Value);
                         data.area = Int32.Parse(match.Groups[1].Value);
+                        if (weapon)
+                        {
+                            data.weaponType = "range";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -367,6 +437,10 @@ namespace EncounterExport.FoundryHelpers
                     {
                         data.rangeType = "closeBlast";
                         data.area = Int32.Parse(match.Groups[1].Value);
+                        if (weapon)
+                        {
+                            data.weaponType = "melee";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -376,6 +450,10 @@ namespace EncounterExport.FoundryHelpers
                     {
                         data.rangeType = "closeBurst";
                         data.area = Int32.Parse(match.Groups[1].Value);
+                        if (weapon)
+                        {
+                            data.weaponType = "melee";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -386,6 +464,10 @@ namespace EncounterExport.FoundryHelpers
                         data.rangeType = "melee";
                         data.rangePower = Int32.Parse(match.Groups[1].Value);
                         data.isMelee = true;
+                        if (weapon)
+                        {
+                            data.weaponType = "melee";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -395,6 +477,10 @@ namespace EncounterExport.FoundryHelpers
                     {
                         data.rangeType = "range";
                         data.rangePower = Int32.Parse(match.Groups[1].Value);
+                        if (weapon)
+                        {
+                            data.weaponType = "range";
+                        }
                         hasMatched = true;
                     }
                 }
@@ -405,6 +491,10 @@ namespace EncounterExport.FoundryHelpers
                         data.rangeType = "reach";
                         data.rangePower = Int32.Parse(match.Groups[1].Value);
                         data.isMelee = true;
+                        if (weapon)
+                        {
+                            data.weaponType = "melee";
+                        }
                         hasMatched = true;
                     }
                 }

@@ -418,11 +418,18 @@ var MasterplanImport = MasterplanImport || (function() {
         // Exit if not an api command
         if (msg.type != "api") return;
         // Split the message into command and argument(s)
-        let command = MasterplanCommon.parseCommand(msg).command
+        let command = MasterplanCommon.parseCommand(msg)
 
-        if(command === importCommand){
+        if(command.command === importCommand){
             if (MasterplanCommon.shouldExitIfNotGM(msg)) {
                 return;
+            }
+            
+            let override = false
+            if (command.options && command.options.length > 0) {
+                if (command.options[0] === "override") {
+                    override = true
+                }
             }
 
             MasterplanCommon.chatOutput("It's " + new Date().toISOString() + " and the GM has asked me to look in my book!  Hopefully it's full of badgers.");
@@ -450,15 +457,34 @@ var MasterplanImport = MasterplanImport || (function() {
                             // see if the creature already exists
                             MasterplanCommon.debugOutput("Checking for: " + creatureData.Name)
                             let sourceList = findObjs({ type: 'character', name: creatureData.Name });
-                            if (sourceList.length > 0) {
+                            if (sourceList.length > 0 && !override) {
                                 MasterplanCommon.msgGM( creatureData.Name + " already exists, so I won't be recreating it");
                             }
                             else {
-                                MasterplanCommon.debugOutput("Creating: " + creatureData.Name)
-                                let creature = createObj('character', {
-                                    name: creatureData.Name,
-                                    archived: false
-                                });
+                                let creature = null;
+                                if (sourceList.length > 0) {
+                                    creature = sourceList[0]
+                                    const toBeDeleted = ['attribute', 'ability']
+                                    const elements = _.map(toBeDeleted, function (deleteType) {
+                                        return findObjs({
+                                            type: deleteType,
+                                            characterid: creature.get('id'),
+                                        }, {});
+                                    })
+                                    _.each(elements, function(elementList) {
+                                        _.each(elementList, function(element) {
+                                            MasterplanCommon.debugLog( "Deleting " + element.get('name') + ' from ' + creatureData.Name);
+                                            element.remove();
+                                        })
+                                    })
+                                }
+                                else {
+                                    MasterplanCommon.debugOutput("Creating: " + creatureData.Name)
+                                    creature = createObj('character', {
+                                        name: creatureData.Name,
+                                        archived: false
+                                    });
+                                }                               
                                 createCharacterSheet(encounter.Name, creatureData, creature);
                                 MasterplanCommon.msgGM( "I created " + creatureData.Name);
                             }

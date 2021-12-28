@@ -44,7 +44,7 @@ namespace EncounterExport
                 var details = result.details;
                 details.bloodied = input.HP / 2;
                 details.surgeValue = input.HP / 4;
-                details.surges.value = (Math.Min(input.Level - 1, 1) / 10) + 1;
+                details.surges.value = (Math.Max(input.Level - 1, 1) / 10) + 1;
                 details.origin = input.Origin.ToString().ToLowerInvariant();
                 details.typeValue = input.Type.ToString().ToLowerInvariant();
                 details.level = input.Level;
@@ -343,15 +343,16 @@ namespace EncounterExport
                 var vunerables = "";
                 foreach (var mod in input.DamageModifiers)
                 {
-                    var str = ", " + mod.Value + " " + mod.Type;
+                    var str = ", " + Math.Abs(mod.Value) + " " + mod.Type;
+                    var flippedVal = mod.Value * -1;
 
                     if (mod.Value < 0)
                     {
-                        resistances += str;
+                        vunerables += str;
                     }
                     else if (mod.Value > 0)
                     {
-                        vunerables += str;
+                        resistances += str;
                     }
 
 
@@ -366,7 +367,7 @@ namespace EncounterExport
                     {
                         var bonus = new Bonus()
                         {
-                            value = mod.Value,
+                            value = flippedVal,
                             name = "Monster"
                         };
                         damageMod.bonus.Add(bonus);

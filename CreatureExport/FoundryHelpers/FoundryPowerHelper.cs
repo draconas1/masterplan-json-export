@@ -149,6 +149,11 @@ namespace EncounterExport.FoundryHelpers
                 case PowerUseType.AtWill: break;
                 default:
                     use = power.Action.Use.ToString().ToLowerInvariant();
+                    powerData.uses = new UsesPer
+                    {
+                        value = 1,
+                        per = "enc"
+                    };
                     break;
             }
 

@@ -108,6 +108,13 @@ namespace EncounterExport
     {
         public int max => value;
     }
+    
+    public class UsesPer
+    {
+        public int? value { get; set; }
+        public int? max => value;
+        public string per { get; set; }
+    }
 
     public class IntValueHolderWithBase : IntValueHolder
     {
@@ -267,6 +274,7 @@ namespace EncounterExport
         public string powerType { get; set; } = "class";
         public bool basicAttack { get; set; } = false;
         public string useType { get; set; } = "atwill";
+        public UsesPer uses { get; set; } = new UsesPer();
         public string actionType { get; set; } = "standard";
         //public string requirements { get; set; } = "";
         public string weaponType { get; set; } = "none";

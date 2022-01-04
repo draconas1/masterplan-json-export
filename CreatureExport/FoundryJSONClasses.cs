@@ -341,6 +341,7 @@ namespace EncounterExport
     public class FoundryPowerMiss
     {
         public string detail { get; set; }
+        public string formula { get; set; } = "";
     }
 
     public class FoundryPowerEffect

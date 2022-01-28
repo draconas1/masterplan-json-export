@@ -85,14 +85,16 @@ var MasterplanCommon = MasterplanCommon || (function() {
             w = unescape(w);
         }
         // remove non breaking spaces
-        w = w.replace("&nbsp;", " ")
+        w = replaceAll(w, "&nbsp;", " ")
 
         // remove pre-tags
-        w = w.replace("<pre>", "").replace("</pre>", "")
+        w = replaceAll(w, "<pre>", "")
+        w = replaceAll(w, "</pre>", "")
 
         // replace linebreaks
-        w = w.replace("<br>", options.separator).replace("</br>", options.separator)
-
+        w = replaceAll(w, "<br>", "")
+        w = replaceAll(w, "</br>", "")
+        
         // replace paragraph tags
         if(/^<p>/.test(w)){
             let lines = w.match(/<p>.*?<\/p>/g).map( l => l.replace(/^<p>(.*?)<\/p>$/,'$1'));
@@ -101,6 +103,10 @@ var MasterplanCommon = MasterplanCommon || (function() {
         /* neither */
         return w;
     };
+
+    const replaceAll = (str, find, replace) => {
+        return str.replace(new RegExp(find, 'g'), replace);
+    }
 
     const handleMessage = (msg) => {
         // Exit if not an api command

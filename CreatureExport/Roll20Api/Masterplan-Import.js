@@ -445,11 +445,26 @@ var MasterplanImport = MasterplanImport || (function() {
             source.get("gmnotes", function(gmnotes) {
                 MasterplanCommon.debugLog(gmnotes)
                 if (gmnotes && gmnotes !== "null") {
-                    MasterplanCommon.debugLog("Stripping formatting from GM Notes")
-                    let parsed = MasterplanCommon.decodeEditorText(gmnotes)
-                    MasterplanCommon.debugLog(parsed)
-                    MasterplanCommon.debugLog("Running JSON.parse on GM Notes")
-                    let overallObject = JSON.parse(parsed);
+                    let parsed = null
+                    let overallObject = null
+                    try {
+                        MasterplanCommon.debugLog("Stripping formatting from GM Notes")
+                        parsed = MasterplanCommon.decodeEditorText(gmnotes)
+                        MasterplanCommon.debugLog(parsed)
+                        MasterplanCommon.debugLog("Running JSON.parse on GM Notes")
+                        overallObject = JSON.parse(parsed);
+                    } catch (e) {
+                        log("Error parsing json: " + e)
+                        log("Original GM Notes")
+                        log(gmnotes)
+                        log("-------")
+                        log("GM Notes after the we have stripped html")
+                        log(parsed)
+                        log("There are some steps on methods to work around it here:")
+                        log("https://github.com/draconas1/masterplan-json-export/wiki/Roll20#problems-reading-the-json")
+                        MasterplanCommon.chatOutput("Oh Dear.  There was a problem parsing the json from the badger book!  I have logged details in the API Console");
+                        return
+                    }
                     _.each(overallObject, function(encounter) {
                         MasterplanCommon.msgGM("I'm looking at encounter: " + encounter.Name);
 

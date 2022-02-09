@@ -108,7 +108,7 @@ namespace EncounterExport
                                 details.saves.bonus.Add(soloBonus);
                                 break;
                             case RoleFlag.Standard:
-                                details.role.secondary = "regular";
+                                details.role.secondary = "standard";
                                 break;
                         }
 
@@ -119,7 +119,7 @@ namespace EncounterExport
                         break;
                     default:
                         details.role.primary = input.Info;
-                        details.role.secondary = "regular";
+                        details.role.secondary = "standard";
                         break;
                 }
 
@@ -231,7 +231,7 @@ namespace EncounterExport
             var description = medKnowledge.data.description;
             description.value += $"<h1>{creatureAndErrors.Name}</h1>\n";
             var data = creatureAndErrors.Creature.Data;
-            var secondaryType = data.details.role.secondary == "regular" ? "" : data.details.role.secondary;
+            var secondaryType = data.details.role.secondary == "standard" ? "" : data.details.role.secondary;
             description.value += $"<p><b>Role: </b>level {data.details.level} {creature.Size} {secondaryType} {data.details.role.primary}";
             if (data.details.role.leader)
             {
@@ -346,11 +346,11 @@ namespace EncounterExport
                     var str = ", " + Math.Abs(mod.Value) + " " + mod.Type;
                     var flippedVal = mod.Value * -1;
 
-                    if (mod.Value < 0)
+                    if (mod.Value > 0)
                     {
                         vunerables += str;
                     }
-                    else if (mod.Value > 0)
+                    else if (mod.Value < 0)
                     {
                         resistances += str;
                     }

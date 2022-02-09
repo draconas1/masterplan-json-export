@@ -180,7 +180,7 @@ namespace EncounterExport
     public class Role
     {
         public string primary { get; set; }
-        public string secondary { get; set; }
+        public string secondary { get; set; } = "standard";
         
         public bool leader { get; set; }
     }

@@ -142,6 +142,7 @@ namespace EncounterExport
                 }
 
                 result.movement.notes = input.Movement;
+                result.movement.custom = input.Movement;
                 details.other = input.Keywords;
                 details.alignment = input.Alignment;
 

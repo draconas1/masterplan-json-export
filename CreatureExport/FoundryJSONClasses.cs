@@ -60,6 +60,8 @@ namespace EncounterExport
         [JsonProperty("base")]
         public IntValueHolderWithBase baseValue { get; set; } = new IntValueHolderWithBase();
         public string notes { get; set; }
+        
+        public string custom { get; set; }
     }
     public class Abilities
     {

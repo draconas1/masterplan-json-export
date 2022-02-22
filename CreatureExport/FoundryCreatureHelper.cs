@@ -185,8 +185,10 @@ namespace EncounterExport
                 }
                 
                 powers.Sort(new PowerComparer());
-                
-                var auras = ProcessAuras(input, result, errors, monsterKnowledgeHardDescription);
+
+                var auraTraitList = new List<FoundryTrait>();
+                var auras = ProcessAuras(input, result, errors, monsterKnowledgeHardDescription, auraTraitList);
+                traits.AddRange(auraTraitList);
                 if (auras != null)
                 {
                     output.Creature.Token.flags["token-auras"] = auras;
@@ -546,7 +548,7 @@ namespace EncounterExport
         }
 
         private static Dictionary<string, object> ProcessAuras(ICreature input, FoundryCreatureData output,
-            List<string> errors, FoundryPowerDescription hardDescription)
+            List<string> errors, FoundryPowerDescription hardDescription, List<FoundryTrait> auraTraits)
         {
             if (input.Auras != null && input.Auras.Any())
             {
@@ -600,6 +602,14 @@ namespace EncounterExport
                     output.biography += $"<h2>{aura.Name}</h2>\n";
                     output.biography += $"<p>{aura.Details}</p>\n";
                     hardDescription.value += $"<tr><td><b>{aura.Name}</b></td><td>{aura.Details}</td></tr>\n";
+
+                    var trait = new FoundryTrait()
+                    {
+                        name = "Aura: " + aura.Name
+                    };
+                    trait.data.description.value = aura.Details;
+                    auraTraits.Add(trait);
+
                 }
                 hardDescription.value += $"</table>\n";
                 return auras;

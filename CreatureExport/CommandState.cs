@@ -2,7 +2,7 @@
 {
     public static class CommandState
     {
-        public static OutputSystem SelectedSystem { get; set; } = OutputSystem.Roll20;
+        public static OutputSystem SelectedSystem { get; set; } = OutputSystem.Foundry;
 
         public static string GetSystemString
         {

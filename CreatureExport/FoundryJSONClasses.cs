@@ -329,7 +329,7 @@ namespace EncounterExport
         public string def { get; set; }
         public string formula { get; set; }
 
-        public string ability { get; set; } = "";
+        public string ability { get; set; } = "form";
     }
 
     public class FoundryPowerHit

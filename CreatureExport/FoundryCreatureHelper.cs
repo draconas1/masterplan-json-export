@@ -15,6 +15,20 @@ namespace EncounterExport
         private const bool DEBUG = false;
         public static FoundryCreatureAndErrors CreateCreature(EncounterCreature encounterCreature)
         {
+            /*
+             Library Source
+             * Creature c = creature as Creature;
+        List<string> stringList2 = new List<string>();
+        if (c != null)
+        {
+          Library library = Session.FindLibrary(c);
+          if (library != null && library.Name != "" && (Session.Project == null || library != Session.Project.Library))
+          {
+            string str35 = HTML.Process(library.Name, true);
+            stringList2.Add(str35);
+          }
+        }
+             */
             var input = encounterCreature.Creature;
             try
             {

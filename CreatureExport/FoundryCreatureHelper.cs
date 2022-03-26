@@ -499,9 +499,9 @@ namespace EncounterExport
             }
 
             var skillsHolder = new Skills();
+            const int bonus = 5;
             skills.ForEach(x =>
             {
-                var bonus = 5;
                 switch (x.Name.ToLowerInvariant())
                 {
                     case "acrobatics":

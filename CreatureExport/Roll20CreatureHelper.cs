@@ -6,7 +6,7 @@ using Masterplan.Data;
 
 namespace EncounterExport
 {
-    public static class CreatureHelper
+    public static class Roll20CreatureHelper
     {
         public static CreatureAndErrors createCreature(ICreature input)
         {

@@ -5,7 +5,7 @@ using Masterplan.Data;
 
 namespace EncounterExport
 {
-    public static class TrapHelper
+    public static class Roll20TrapHelper
     {
         public static TrapAndErrors CreateTrap(Trap input)
         {

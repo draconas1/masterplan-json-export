@@ -39,9 +39,9 @@ namespace EncounterExport
                         {
                             var creatures = encounter.Slots.Select(y => y.Card)
                                 .Select(z => FindCreature(z.CreatureID))
-                                .Select(CreatureHelper.createCreature)
+                                .Select(Roll20CreatureHelper.createCreature)
                                 .ToList();
-                            var traps = encounter.Traps.Select(TrapHelper.CreateTrap).ToList();
+                            var traps = encounter.Traps.Select(Roll20TrapHelper.CreateTrap).ToList();
 
                             var output = new Roll20EncounterOutput
                             {
@@ -58,7 +58,7 @@ namespace EncounterExport
 
                         if (plotPoint.Element is TrapElement trap)
                         {
-                            var trapsOutput = TrapHelper.CreateTrap(trap.Trap);
+                            var trapsOutput = Roll20TrapHelper.CreateTrap(trap.Trap);
                             var output = new Roll20EncounterOutput
                             {
                                 Name = plotPoint.Name,
@@ -88,7 +88,7 @@ namespace EncounterExport
                                 })
                                 .Select(FoundryCreatureHelper.CreateCreature)
                                 .ToList();
-                            var traps = encounter.Traps.Select(TrapHelper.CreateTrap).ToList();
+                            var traps = encounter.Traps.Select(FoundryTrapHelper.CreateTrap).ToList();
 
                             var output = new FoundryEncounterOutput
                             {
@@ -105,7 +105,7 @@ namespace EncounterExport
 
                         if (plotPoint.Element is TrapElement trap)
                         {
-                            var trapsOutput = TrapHelper.CreateTrap(trap.Trap);
+                            var trapsOutput = FoundryTrapHelper.CreateTrap(trap.Trap);
                             var output = new FoundryEncounterOutput 
                             {
                                 Name = plotPoint.Name,
@@ -169,7 +169,7 @@ namespace EncounterExport
             public String Name { get; set; }
             public List<FoundryCreature> Creatures { get; set; } = new List<FoundryCreature>();
 
-            public List<OutputTrap> Traps { get; set; } = new List<OutputTrap>();
+            public List<FoundryCreature> Traps { get; set; } = new List<FoundryCreature>();
 
             public List<string> Errors { get; set; } = new List<string>();
         }

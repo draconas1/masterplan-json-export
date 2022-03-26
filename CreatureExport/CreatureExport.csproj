@@ -60,7 +60,8 @@
     <Compile Include="CommandState.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="FoundryCreatureHelper.cs" />
-    <Compile Include="CreatureHelper.cs" />
+    <Compile Include="FoundryTrapHelper.cs" />
+    <Compile Include="Roll20CreatureHelper.cs" />
     <Compile Include="ExportEncounterAndSubsCommand.cs" />
     <Compile Include="ExportEncounterCommand.cs" />
     <Compile Include="ExportProjectCommand.cs" />
@@ -70,7 +71,7 @@
     <Compile Include="JSONBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SwitchSystemCommand.cs" />
-    <Compile Include="TrapHelper.cs" />
+    <Compile Include="Roll20TrapHelper.cs" />
     <Compile Include="UI\ResultForm.cs">
       <SubType>Form</SubType>
     </Compile>

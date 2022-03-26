@@ -5,6 +5,15 @@ using Newtonsoft.Json;
 
 namespace EncounterExport
 {
+    
+    public class FoundryTrapAndErrors
+    {
+        public FoundryCreature Trap { get; set; } = new FoundryCreature();
+        public List<String> Errors { get; set; } = new List<string>();
+        public bool HasError => Errors != null && Errors.Count > 0;
+        public string Name => Trap.Name;
+    }
+    
     public class FoundryCreatureAndErrors
     {
         public FoundryCreature Creature { get; set; } = new FoundryCreature();
@@ -43,6 +52,7 @@ namespace EncounterExport
     {
         public bool actorLink { get; set; } = false;
         public int displayBars { get; set; } = 40; //OWNER
+        public bool hidden { get; set; } = false;
         public Dictionary<string, object> flags { get; set; } = new Dictionary<string, object>();
     }
 
@@ -128,11 +138,16 @@ namespace EncounterExport
     {
         public List<Bonus> bonus { get; set; } = new List<Bonus>();
     }
+    
+    public class Initative : IntValueWithBonuses
+    {
+        public string ability { get; set; } = "dex";
+    }
 
     public class Attributes
     {
         public IntValueHolderWithMax hp { get; set; } = new IntValueHolderWithMax();
-        public IntValueWithBonuses init { get; set; } = new IntValueWithBonuses();
+        public Initative init { get; set; } = new Initative();
     }
 
     public class Defence : IntValueHolder

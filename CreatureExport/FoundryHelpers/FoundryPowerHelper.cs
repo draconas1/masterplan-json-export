@@ -96,7 +96,7 @@ namespace EncounterExport.FoundryHelpers
             return dict;
         }
         
-        private static string newId(int length = 16) {
+        public static string newId(int length = 16) {
             StringBuilder builder = new StringBuilder();
             Random rnd = new Random();
             for (int i = 0; i < length; i++)
@@ -252,100 +252,9 @@ namespace EncounterExport.FoundryHelpers
             resultPower.data.attack.isAttack = true;
             resultPower.data.hit.isDamage = true;
 
-            // check to see if it was an elemental damage type, if not we fall back tp physcal 
-            var shouldAddPhysicalDamage = true;
-            var keywordsHashSet = new HashSet<string>(powerData.keywords.Select(x => x.ToLowerInvariant()));
-            if (keywordsHashSet.Intersect(ElementalDamageTypeSet).Any())
-            {
-                shouldAddPhysicalDamage = false;
-            }
-
-            // parse the power text just in case they didn't add the damage type to the keywords
-            // single type
-            {
-                var damageTypeInPowerData = DamageTypeRegex1.Match(power.Details);
-                if (damageTypeInPowerData.Success)
-                {
-                    var damageType = damageTypeInPowerData.Groups[1].Value.ToLowerInvariant();
-                    powerData.damageType[damageType] = true;
-                    shouldAddPhysicalDamage = false;
-                }
-            }
-            //multiple types
-            {
-                var damageTypeInPowerData = DamageTypeRegex2.Match(power.Details);
-                if (damageTypeInPowerData.Success)
-                {
-                    var damageType1 = damageTypeInPowerData.Groups[1].Value.ToLowerInvariant();
-                    powerData.damageType[damageType1] = true;
-                    var damageType2 = damageTypeInPowerData.Groups[2].Value.ToLowerInvariant();
-                    powerData.damageType[damageType2] = true;
-                    shouldAddPhysicalDamage = false;
-                }
-            }
-            // more than 2 types is incredibly rare, if they have done that they need to have done it in the keywords like a sensible person
-
-            if (shouldAddPhysicalDamage)
-            {
-                powerData.damageType["physical"] = true;
-            }
-
-            ProcessRangeAndWeapon(power, powerData, errors);
-            var def = "AC";
-            switch (power.Attack.Defence)
-            {
-                case DefenceType.Fortitude:
-                    def = "Fort";
-                    break;
-                case DefenceType.Reflex:
-                    def = "Ref";
-                    break;
-                case DefenceType.Will:
-                    def = "Wil";
-                    break;
-                default: break;
-            }
-
-            powerData.attack.def = def.ToLowerInvariant();
-            powerData.attack.formula = power.Attack.Bonus.ToString();
-            powerData.description.chat += $"{power.Range}, {power.Attack.Bonus} vs {def}";
-
-            // reminder that details is the entire block and that Damage is Masterplans attempt to parse it out
-            powerData.hit.detail = power.Details;
-            var damage = CommonHelpers.parseDamageString(power.Damage, errors, power.Name);
-            powerData.hit.formula = damage.NumDice > 0
-                ? damage.NumDice + "d" + damage.DiceSize + "+" + damage.Bonus
-                : damage.Bonus.ToString();
-            powerData.hit.critFormula = damage.NumDice + "*" + damage.DiceSize + "+" + damage.Bonus;
-
-            // attempt to get miss, effect and special out of the details.  
-            {
-                var match = MissRgx.Match(power.Details);
-                if (match.Success)
-                {
-                    powerData.miss.detail = match.Groups[1].Value;
-                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
-                }
-            }
-            {
-                // effect detail was set by trait call
-                powerData.effect.detail = null;
-                var match = EffectRgx.Match(power.Details);
-                if (match.Success)
-                {
-                    powerData.effect.detail = match.Groups[1].Value;
-                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
-                }
-            }
-            {
-                var match = SpecialRgx.Match(power.Details);
-                if (match.Success)
-                {
-                    powerData.special = match.Groups[1].Value;
-                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
-                }
-            }
-            powerData.hit.detail = powerData.hit.detail.Replace("\r\n", "");
+            ProcessAttackDamageAndRange(resultPower, errors, power.Details, power.Damage, power.Attack.Defence,
+                power.Attack.Bonus, power.Range);
+            
             powerData.level = powerData.basicAttack ? "B" : "";
             
             if (powerData.isMelee)
@@ -384,6 +293,111 @@ namespace EncounterExport.FoundryHelpers
 
             return resultPower;
         }
+
+
+        public static void ProcessAttackDamageAndRange(FoundryPower foundryPower, List<string> errors, 
+            string sourcePowerDetails,
+            string sourcePowerDamage,
+            DefenceType defenceType, 
+            int attackBonus,
+            string range)
+        {
+            var powerData = foundryPower.data;
+             // check to see if it was an elemental damage type, if not we fall back tp physcal 
+            var shouldAddPhysicalDamage = true;
+            var keywordsHashSet = new HashSet<string>(powerData.keywords.Select(x => x.ToLowerInvariant()));
+            if (keywordsHashSet.Intersect(ElementalDamageTypeSet).Any())
+            {
+                shouldAddPhysicalDamage = false;
+            }
+
+            // parse the power text just in case they didn't add the damage type to the keywords
+            // single type
+            {
+                var damageTypeInPowerData = DamageTypeRegex1.Match(sourcePowerDetails);
+                if (damageTypeInPowerData.Success)
+                {
+                    var damageType = damageTypeInPowerData.Groups[1].Value.ToLowerInvariant();
+                    powerData.damageType[damageType] = true;
+                    shouldAddPhysicalDamage = false;
+                }
+            }
+            //multiple types
+            {
+                var damageTypeInPowerData = DamageTypeRegex2.Match(sourcePowerDetails);
+                if (damageTypeInPowerData.Success)
+                {
+                    var damageType1 = damageTypeInPowerData.Groups[1].Value.ToLowerInvariant();
+                    powerData.damageType[damageType1] = true;
+                    var damageType2 = damageTypeInPowerData.Groups[2].Value.ToLowerInvariant();
+                    powerData.damageType[damageType2] = true;
+                    shouldAddPhysicalDamage = false;
+                }
+            }
+            // more than 2 types is incredibly rare, if they have done that they need to have done it in the keywords like a sensible person
+
+            if (shouldAddPhysicalDamage)
+            {
+                powerData.damageType["physical"] = true;
+            }
+
+            ProcessRangeAndWeapon(range, powerData, foundryPower.name, errors);
+            var def = "AC";
+            switch (defenceType)
+            {
+                case DefenceType.Fortitude:
+                    def = "Fort";
+                    break;
+                case DefenceType.Reflex:
+                    def = "Ref";
+                    break;
+                case DefenceType.Will:
+                    def = "Wil";
+                    break;
+                default: break;
+            }
+
+            powerData.attack.def = def.ToLowerInvariant();
+            powerData.attack.formula = attackBonus.ToString();
+            powerData.description.chat += $"{range}, {attackBonus} vs {def}";
+
+            // reminder that details is the entire block and that Damage is Masterplans attempt to parse it out
+            powerData.hit.detail = sourcePowerDetails;
+            var damage = CommonHelpers.parseDamageString(sourcePowerDamage, errors, foundryPower.name);
+            powerData.hit.formula = damage.NumDice > 0
+                ? damage.NumDice + "d" + damage.DiceSize + "+" + damage.Bonus
+                : damage.Bonus.ToString();
+            powerData.hit.critFormula = damage.NumDice + "*" + damage.DiceSize + "+" + damage.Bonus;
+
+            // attempt to get miss, effect and special out of the details.  
+            {
+                var match = MissRgx.Match(sourcePowerDetails);
+                if (match.Success)
+                {
+                    powerData.miss.detail = match.Groups[1].Value;
+                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
+                }
+            }
+            {
+                // effect detail was set by trait call
+                powerData.effect.detail = null;
+                var match = EffectRgx.Match(sourcePowerDetails);
+                if (match.Success)
+                {
+                    powerData.effect.detail = match.Groups[1].Value;
+                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
+                }
+            }
+            {
+                var match = SpecialRgx.Match(sourcePowerDetails);
+                if (match.Success)
+                {
+                    powerData.special = match.Groups[1].Value;
+                    powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");
+                }
+            }
+            powerData.hit.detail = powerData.hit.detail.Replace("\r\n", "");
+        }
         
         private static readonly Regex AreaBurstRgx =
             new Regex(@"area burst ([1-9][0-9]*) within ([1-9][0-9]*)",
@@ -410,9 +424,8 @@ namespace EncounterExport.FoundryHelpers
         private static readonly Regex Wall2Rgx =
             new Regex(@"wall ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static void ProcessRangeAndWeapon(CreaturePower power, FoundryPowerData data, List<string> errors)
+        private static void ProcessRangeAndWeapon(string range, FoundryPowerData data, string powerName, List<string> errors)
         {
-            var range = power.Range;
             var weapon = data.keywords.Contains("weapon") || data.keywords.Contains("Weapon");
             var implement = data.keywords.Contains("implement") || data.keywords.Contains("Implement");
             if (implement)
@@ -545,19 +558,16 @@ namespace EncounterExport.FoundryHelpers
                     // try to work around unset ranges
                     else if (string.IsNullOrEmpty(range))
                     {
-                        if ((power.Action.Use == PowerUseType.Basic) || (power.Attack != null))
-                        {
-                            data.rangeType = "melee";
-                            data.rangePower = 1;
-                            data.isMelee = true;
-                            errors.Add($"Attack {power.Name} did not have range set, assuming melee");
-                        }
+                        data.rangeType = "melee";
+                        data.rangePower = 1;
+                        data.isMelee = true;
+                        errors.Add($"Attack {powerName} did not have range set, assuming melee");
                     }
                 }
             }
             catch (Exception e)
             {
-                errors.Add($"Failed to Parse Range: '{range}' for power {power.Name}:" + e.Message);
+                errors.Add($"Failed to Parse Range: '{range}' for power {powerName}:" + e.Message);
             }
         }
     }

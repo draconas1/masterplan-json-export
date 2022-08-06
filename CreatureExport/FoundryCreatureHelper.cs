@@ -30,6 +30,7 @@ namespace EncounterExport
         }
              */
             var input = encounterCreature.Creature;
+            var inputCard = encounterCreature.Card;
             try
             {
                 var output = new FoundryCreatureAndErrors();
@@ -45,26 +46,26 @@ namespace EncounterExport
                 result.abilities.wis.value = input.Wisdom.Score;
                 result.abilities.cha.value = input.Charisma.Score;
 
-                result.attributes.hp.value = input.HP;
-                result.attributes.init.value = input.Initiative;
+                result.attributes.hp.value = inputCard.HP;
+                result.attributes.init.value = inputCard.Initiative;
 
-                var halfLevel = input.Level / 2;
+                var halfLevel = inputCard.Level / 2;
 
-                result.defences.ac.value = input.AC - halfLevel;
-                result.defences.fort.value = input.Fortitude - halfLevel;
-                result.defences.refValue.value = input.Reflex - halfLevel;
-                result.defences.wil.value = input.Will - halfLevel;
+                result.defences.ac.value = inputCard.AC - halfLevel;
+                result.defences.fort.value = inputCard.Fortitude - halfLevel;
+                result.defences.refValue.value = inputCard.Reflex - halfLevel;
+                result.defences.wil.value = inputCard.Will - halfLevel;
 
                 var details = result.details;
                 details.bloodied = input.HP / 2;
                 details.surgeValue = input.HP / 4;
-                details.surges.value = (Math.Max(input.Level - 1, 1) / 10) + 1;
+                details.surges.value = (Math.Max(inputCard.Level - 1, 1) / 10) + 1;
                 details.origin = input.Origin.ToString().ToLowerInvariant();
                 details.typeValue = input.Type.ToString().ToLowerInvariant();
-                details.level = input.Level;
+                details.level = inputCard.Level;
                 details.size = SizeToString(input.Size);
-                details.exp = encounterCreature.Card.XP;
-
+                details.exp = inputCard.XP;
+                
                 switch (input.Role)
                 {
                     case ComplexRole role:
@@ -137,7 +138,7 @@ namespace EncounterExport
                         break;
                 }
 
-                var movetest = input.Movement.Split(',').First();
+                var movetest = inputCard.Movement.Split(',').First();
                 if (Int32.TryParse(movetest.Trim(), out var moveDist))
                 {
                     result.movement.baseValue.value = moveDist;
@@ -159,27 +160,27 @@ namespace EncounterExport
                 result.movement.custom = input.Movement;
                 details.other = input.Keywords;
                 details.alignment = input.Alignment;
-
-                var skills = ProcessSkills(input, errors);
+                
+                var skills = ProcessSkills(inputCard, errors);
                 result.skills = skills;
 
                 AddValueToBio(input.Languages, "Languages", result);
                 AddValueToBio(input.Tactics, "Tactics", result, monsterKnowledgeHardDescription);
 
-                if (input.Regeneration != null)
+                if (inputCard.Regeneration != null)
                 {
                     AddValueToBio(input.Regeneration.ToString(), "Regeneration", result, monsterKnowledgeHardDescription);
                 }
 
-                result.senses = FoundrySensesHelper.ProcessSenses(input.Senses);
+                result.senses = FoundrySensesHelper.ProcessSenses(inputCard.Senses);
 
-                ProcessDamageModifiers(input, result, monsterKnowledgeHardDescription);
+                ProcessDamageModifiers(inputCard, result, monsterKnowledgeHardDescription);
 
                 AddValueToBio(input.Equipment, "Equipment", result);
 
                 List<FoundryPower> powers = output.Creature.Powers;
                 List<FoundryTrait> traits = output.Creature.Traits;
-                foreach (var power in input.CreaturePowers)
+                foreach (var power in inputCard.CreaturePowers)
                 {
                     if (power.Category == CreaturePowerCategory.Trait)
                     {
@@ -201,7 +202,7 @@ namespace EncounterExport
                 powers.Sort(new PowerComparer());
 
                 var auraTraitList = new List<FoundryTrait>();
-                var auras = ProcessAuras(input, result, errors, monsterKnowledgeHardDescription, auraTraitList);
+                var auras = ProcessAuras(inputCard, result, errors, monsterKnowledgeHardDescription, auraTraitList);
                 traits.AddRange(auraTraitList);
                 if (auras != null)
                 {
@@ -213,7 +214,7 @@ namespace EncounterExport
                     output.Creature.creature = input;
                 }
 
-                GenerateMonsterKnowledgeBlocks(output, input, monsterKnowledgeHardDescription);
+                GenerateMonsterKnowledgeBlocks(output, inputCard, monsterKnowledgeHardDescription, input.Size);
                 
                 var usefulStuff = new FoundryTrait
                 {
@@ -235,8 +236,8 @@ namespace EncounterExport
         }
 
         private static void GenerateMonsterKnowledgeBlocks(FoundryCreatureAndErrors creatureAndErrors,
-            ICreature creature,
-            FoundryPowerDescription hardDescription)
+            EncounterCard creature,
+            FoundryPowerDescription hardDescription, CreatureSize creatureSize)
         {
             var medKnowledge = new FoundryTrait
             {
@@ -245,11 +246,19 @@ namespace EncounterExport
                 img = "icons/svg/book.svg"
                     
             };
+            
+            
+            
             var description = medKnowledge.data.description;
-            description.value += $"<h1>{creatureAndErrors.Name}</h1>\n";
+            description.value += $"<h1>{creatureAndErrors.Creature.Name}</h1>\n";
+            var titleRemains = creature.Title.Replace(creatureAndErrors.Creature.Name, "");
+            if (titleRemains.Trim() != "")
+            {
+                description.value += $"<h2>{titleRemains.Trim()}</h2>\n";
+            }
             var data = creatureAndErrors.Creature.Data;
             var secondaryType = data.details.role.secondary == "standard" ? "" : data.details.role.secondary;
-            description.value += $"<p><b>Role: </b>level {data.details.level} {creature.Size} {secondaryType} {data.details.role.primary}";
+            description.value += $"<p><b>Role: </b>level {data.details.level} {creatureSize} {secondaryType} {data.details.role.primary}";
             if (data.details.role.leader)
             {
                 description.value += " (leader)</p>\n";
@@ -281,11 +290,11 @@ namespace EncounterExport
             // prefix on the medium stuff
             hardDescription.value = medKnowledge.data.description.value + hardDescription.value;
 
-            hardDescription.value += $"<h2>Powers</h2>\n<table>";
+            hardDescription.value += $"<h2>Powers</h2>\n";
             
             foreach (var power in creatureAndErrors.Creature.Powers)
             {
-                hardDescription.value += $"<tr><td><b>{power.name}</b></td><td>{power.data.description.chat}</td></tr>\n";
+                hardDescription.value += $"<p><b>{power.name}</b><br/>{power.data.description.chat}</p>\n";
                 power.data.description.chat = "";
             }
             hardDescription.value += $"</table>\n";
@@ -295,7 +304,7 @@ namespace EncounterExport
                 hardDescription.value += $"<h2>Traits</h2>\n<table>";
                 foreach (var trait in creatureAndErrors.Creature.Traits)
                 {
-                    hardDescription.value += $"<tr><td><b>{trait.name}</b></td><td>{trait.data.description.value}</td></tr>\n";
+                    hardDescription.value += $"<p><b>{trait.name}</b><br/>{trait.data.description.value}</p>\n";
                 }
                 hardDescription.value += $"</table>\n";
             }
@@ -350,7 +359,7 @@ namespace EncounterExport
             return result;
         }
 
-        private static void ProcessDamageModifiers(ICreature input, FoundryCreatureData result,
+        private static void ProcessDamageModifiers(EncounterCard input, FoundryCreatureData result,
             FoundryPowerDescription monsterKnowledgeHardDescription)
         {
             var immunities = "";
@@ -456,7 +465,7 @@ namespace EncounterExport
             return input.StartsWith(", ") ? input.Substring(2) : input;
         }
 
-        private static Skills ProcessSkills(ICreature input, List<string> errors)
+        private static Skills ProcessSkills(EncounterCard input, List<string> errors)
         {
             var skillArray = Regex.Split(input.Skills, @"[\,\;]")
                 .Select(x => x.Trim())
@@ -561,7 +570,7 @@ namespace EncounterExport
             return skillsHolder;
         }
 
-        private static Dictionary<string, object> ProcessAuras(ICreature input, FoundryCreatureData output,
+        private static Dictionary<string, object> ProcessAuras(EncounterCard input, FoundryCreatureData output,
             List<string> errors, FoundryPowerDescription hardDescription, List<FoundryTrait> auraTraits)
         {
             if (input.Auras != null && input.Auras.Any())

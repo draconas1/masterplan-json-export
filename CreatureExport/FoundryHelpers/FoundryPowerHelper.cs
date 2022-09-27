@@ -96,9 +96,9 @@ namespace EncounterExport.FoundryHelpers
             return dict;
         }
         
+        private static readonly Random rnd = new Random();
         public static string newId(int length = 16) {
             StringBuilder builder = new StringBuilder();
-            Random rnd = new Random();
             for (int i = 0; i < length; i++)
             {
                 builder.Append(validIdChars[rnd.Next(validIdChars.Length)]);

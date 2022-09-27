@@ -51,10 +51,10 @@ namespace EncounterExport
 
                 var halfLevel = inputCard.Level / 2;
 
-                result.defences.ac.value = inputCard.AC - halfLevel;
-                result.defences.fort.value = inputCard.Fortitude - halfLevel;
-                result.defences.refValue.value = inputCard.Reflex - halfLevel;
-                result.defences.wil.value = inputCard.Will - halfLevel;
+                result.defences.ac.value = inputCard.AC - halfLevel - Math.Max(input.Dexterity.Modifier, input.Intelligence.Modifier);
+                result.defences.fort.value = inputCard.Fortitude - halfLevel - Math.Max(input.Strength.Modifier, input.Constitution.Modifier);
+                result.defences.refValue.value = inputCard.Reflex - halfLevel - Math.Max(input.Dexterity.Modifier, input.Intelligence.Modifier);
+                result.defences.wil.value = inputCard.Will - halfLevel - Math.Max(input.Wisdom.Modifier, input.Charisma.Modifier);
 
                 var details = result.details;
                 details.bloodied = input.HP / 2;

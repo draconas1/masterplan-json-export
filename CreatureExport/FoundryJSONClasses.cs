@@ -37,6 +37,24 @@ namespace EncounterExport
         public Dictionary<string, DamageMod> resistances { get; set; } = new Dictionary<string, DamageMod>();
     }
 
+    public class FlagBase
+    {
+        public Flags masterplan { get; set; } = new Flags();
+    }
+    
+    public class Flags
+    {
+        public bool imported { get; set; } = true;
+        public ImporterVersion importerVersion { get; set; } = new ImporterVersion();
+    }
+
+    public class ImporterVersion
+    {
+        public int major { get; set; } = 3;
+        public int minor { get; set; } = 1;
+        public int patch { get; set; } = 0;
+    }
+
     public class FoundryCreature
     {
         public string Name => Data.name;
@@ -44,6 +62,8 @@ namespace EncounterExport
         public FoundryTokenData Token { get; set; } = new FoundryTokenData();
         public List<FoundryPower> Powers { get; set; } = new List<FoundryPower>();
         public List<FoundryTrait> Traits { get; set; } = new List<FoundryTrait>();
+        
+        public FlagBase Flags { get; set; } = new FlagBase();
         public object creature { get; set; }
         public object card { get; set; }
     }

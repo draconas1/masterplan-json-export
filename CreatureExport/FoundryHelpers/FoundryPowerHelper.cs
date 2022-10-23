@@ -22,7 +22,19 @@ namespace EncounterExport.FoundryHelpers
                 .ToList().ForEach(e => builder.Append(e));
             return builder.ToString().ToCharArray();
         }
-        
+
+        private static readonly HashSet<string> dodgyConditions = buildDodgyCondition();
+        private static HashSet<string> buildDodgyCondition()
+        {
+            var result = new HashSet<string>();
+            result.Add("(standard");
+            result.Add("(move");
+            result.Add("(minor");
+            result.Add("(free");
+            result.Add("(immediate");
+            return result;
+        }
+
         private static readonly string[] ElementalDamageTypes =
         {
             "acid",
@@ -165,6 +177,40 @@ namespace EncounterExport.FoundryHelpers
             powerData.useType = use;
             powerData.actionType = power.Action.Action.ToString().ToLowerInvariant();
             powerData.requirement = power.Condition;
+            
+            // monster action types end up being shoved in requirement for some monsters
+            if (dodgyConditions.Contains(powerData.requirement.ToLowerInvariant()))
+            {
+                // this might also mean we didn't have an action type to parse
+                // lets do some guesswork
+                if (power.Action.Action == ActionType.None)
+                {
+                    var lower = powerData.requirement.ToLowerInvariant();
+                    var actionTypes = Enum.GetValues(typeof(ActionType))
+                        .Cast<ActionType>()
+                        .Select(x => x.ToString().ToLowerInvariant());
+                    foreach (var actionType in actionTypes)
+                    {
+                        if (lower == "(" + actionType)
+                        {
+                            powerData.actionType = actionType;
+                            errors.Add($"{resultPower.name} had an action of None and a Condition of '{lower}'.  Action has been set to '{actionType}'");
+                        }
+                    }
+
+                    if (lower == "(immediate")
+                    {
+                        errors.Add($"{resultPower.name} had an action of 'None' and a Condition of '(immediate'. It is probably an Interrupt or Reaction, but the exporter has no way to tell.  Try looking it up using the online compendium and see if they fixed it");
+                    }
+                }
+                else
+                {
+                    errors.Add($"{resultPower.name} had an action of None and a Condition of '{powerData.requirement}' that seems well dodge.");
+                }
+                
+                powerData.requirement = "";
+            }
+            
             powerData.trigger = power.Action.Trigger;
             if (!string.IsNullOrEmpty(power.Action.Trigger))
             {
@@ -341,7 +387,7 @@ namespace EncounterExport.FoundryHelpers
                 powerData.damageType["physical"] = true;
             }
 
-            ProcessRangeAndWeapon(range, powerData, foundryPower.name, errors);
+            ProcessRangeAndWeapon(range, powerData, foundryPower.name, sourcePowerDetails, errors);
             var def = "AC";
             switch (defenceType)
             {
@@ -414,6 +460,9 @@ namespace EncounterExport.FoundryHelpers
 
         private static readonly Regex RangedNRgx =
             new Regex(@"ranged ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        
+        private static readonly Regex RangedNSlashNRgx =
+            new Regex(@"([1-9][0-9]*)/([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex ReachNRgx =
             new Regex(@"reach ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -424,7 +473,7 @@ namespace EncounterExport.FoundryHelpers
         private static readonly Regex Wall2Rgx =
             new Regex(@"wall ([1-9][0-9]*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static void ProcessRangeAndWeapon(string range, FoundryPowerData data, string powerName, List<string> errors)
+        private static void ProcessRangeAndWeapon(string range, FoundryPowerData data, string powerName, string sourcePowerDetails, List<string> errors)
         {
             var weapon = data.keywords.Contains("weapon") || data.keywords.Contains("Weapon");
             var implement = data.keywords.Contains("implement") || data.keywords.Contains("Implement");
@@ -554,6 +603,38 @@ namespace EncounterExport.FoundryHelpers
                         data.rangeType = "melee";
                         data.rangePower = 1;
                         data.isMelee = true;
+                    }
+                    // sometimes reach ends up in the power details text.  Because.....
+                    else if (ReachNRgx.IsMatch(sourcePowerDetails))
+                    {
+                        var match = ReachNRgx.Match(sourcePowerDetails);
+                        if (match.Success)
+                        {
+                            data.rangeType = "reach";
+                            data.rangePower = Int32.Parse(match.Groups[1].Value);
+                            data.isMelee = true;
+                            if (weapon)
+                            {
+                                data.weaponType = "melee";
+                            }
+                        }
+                    }
+                    // sometimes range ends up in the power details text. especially if weapon
+                    else if (RangedNSlashNRgx.IsMatch(sourcePowerDetails))
+                    {
+                        var match = RangedNSlashNRgx.Match(sourcePowerDetails);
+                        if (match.Success)
+                        {
+                            data.rangeType = "range";
+                            data.rangePower = Int32.Parse(match.Groups[1].Value);
+                            data.isMelee = false;
+                            if (weapon)
+                            {
+                                data.weaponType = "range";
+                            }
+
+                            data.target = "range " + match.Value + " " + data.target;
+                        }
                     }
                     // try to work around unset ranges
                     else if (string.IsNullOrEmpty(range))

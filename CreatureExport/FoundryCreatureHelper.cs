@@ -427,15 +427,17 @@ namespace EncounterExport
             result.untypedResistances.resistances.RemoveAll(string.IsNullOrEmpty);
             result.untypedResistances.vulnerabilities.RemoveAll(string.IsNullOrEmpty);
             result.untypedResistances.immunities.RemoveAll(string.IsNullOrEmpty);
-
+          
             if (!string.IsNullOrEmpty(input.Immune))
             {
                 var immuneStringLower = input.Immune.ToLowerInvariant();
                 var damageTypes = Enum.GetValues(typeof(DamageType))
                     .Cast<DamageType>()
                     .Select(x => x.ToString().ToLowerInvariant());
+                var damageTypeSet = new HashSet<string>();
                 foreach (var damageType in damageTypes)
                 {
+                    damageTypeSet.Add(damageType);
                     if (immuneStringLower.Contains(damageType))
                     {
                         if (result.resistances.ContainsKey(damageType))
@@ -451,6 +453,8 @@ namespace EncounterExport
                         }
                     }
                 }
+                // try to remove immunities that are themselves damage types without a conditional modifer
+                result.untypedResistances.immunities.RemoveAll(str => damageTypeSet.Contains(str.ToLower()));
             }
             
             var immuneStringList = new List<string>

@@ -382,7 +382,7 @@ namespace EncounterExport.FoundryHelpers
                 // effect detail was set by trait call
                 powerData.effect.detail = null;
                 var match = EffectRgx.Match(sourcePowerDetails);
-                if (match.Success)
+                if (match.Success && !match.Value.ToLower().StartsWith("aftereffect:"))
                 {
                     powerData.effect.detail = match.Groups[1].Value;
                     powerData.hit.detail = powerData.hit.detail.Replace(match.Value, "");

@@ -27,7 +27,7 @@ namespace CompendiumImport.UI
 
         private void btnExport_Click(object sender, EventArgs e)
         {
-            string export = Path.Combine(Path.GetTempPath(), "export" + Guid.NewGuid() + "export.txt");
+            string export = Path.Combine(Path.GetTempPath(), "export" + Guid.NewGuid() + "export.json");
             using (StreamWriter sw = new StreamWriter(export))
             {
                 sw.WriteLine(OutputBox.Text);

@@ -35,6 +35,14 @@ namespace EncounterExport
         public string biography { get; set; } = "";
         public Senses senses { get; set; } = new Senses();
         public Dictionary<string, DamageMod> resistances { get; set; } = new Dictionary<string, DamageMod>();
+        public UntypedResistance untypedResistances { get; set; } = new UntypedResistance();
+    }
+
+    public class UntypedResistance
+    {
+        public List<string> resistances { get; set; } = new List<string>();
+        public List<string> vulnerabilities { get; set; } = new List<string>();
+        public List<string> immunities { get; set; } = new List<string>();
     }
 
     public class FlagBase
@@ -51,7 +59,7 @@ namespace EncounterExport
     public class ImporterVersion
     {
         public int major { get; set; } = 3;
-        public int minor { get; set; } = 1;
+        public int minor { get; set; } = 2;
         public int patch { get; set; } = 0;
     }
 
@@ -208,6 +216,8 @@ namespace EncounterExport
         public int bloodied { get; set; }
         public int surgeValue { get; set; }
         public string size { get; set; } = "med";
+        
+        public string equipment { get; set; } = "";
         public IntValueHolderWithMax surges { get; set; } = new IntValueHolderWithMax();
         public IntValueWithBonuses saves { get; set; } = new IntValueWithBonuses();
         public string alignment { get; set; }

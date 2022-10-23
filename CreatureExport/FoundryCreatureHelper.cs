@@ -13,6 +13,7 @@ namespace EncounterExport
     public static class FoundryCreatureHelper
     {
         private const bool DEBUG = false;
+        private const string EPIC_DESTINY_POWER_TYPE = "destinyFeats";
         public static FoundryCreatureAndErrors CreateCreature(EncounterCreature encounterCreature)
         {
             /*
@@ -65,6 +66,7 @@ namespace EncounterExport
                 details.level = inputCard.Level;
                 details.size = SizeToString(input.Size);
                 details.exp = inputCard.XP;
+                details.equipment = input.Equipment;
                 
                 switch (input.Role)
                 {
@@ -219,7 +221,7 @@ namespace EncounterExport
                 var usefulStuff = new FoundryTrait
                 {
                     name = "Misc NPC Info",
-                    type = "classFeats",
+                    type = EPIC_DESTINY_POWER_TYPE,
                     img = "icons/svg/mystery-man.svg"
                     
                 };
@@ -242,7 +244,7 @@ namespace EncounterExport
             var medKnowledge = new FoundryTrait
             {
                 name = "Monster Knowledge (med)",
-                type = "classFeats",
+                type = EPIC_DESTINY_POWER_TYPE,
                 img = "icons/svg/book.svg"
                     
             };
@@ -283,7 +285,7 @@ namespace EncounterExport
             var hardKnowledge = new FoundryTrait
             {
                 name = "Monster Knowledge (hard)",
-                type = "classFeats",
+                type = EPIC_DESTINY_POWER_TYPE,
                 img = "icons/svg/book.svg"
             };
             hardKnowledge.data.description = hardDescription;
@@ -363,10 +365,10 @@ namespace EncounterExport
             FoundryPowerDescription monsterKnowledgeHardDescription)
         {
             var immunities = "";
+            var resistances = "";
+            var vunerables = "";
             if (input.DamageModifiers != null)
             {
-                var resistances = "";
-                var vunerables = "";
                 foreach (var mod in input.DamageModifiers)
                 {
                     var str = ", " + Math.Abs(mod.Value) + " " + mod.Type;
@@ -411,14 +413,20 @@ namespace EncounterExport
                 }
 
                 immunities = RemoveComma(immunities);
-                AddValueToBio(RemoveComma(resistances), "Resistances", result, monsterKnowledgeHardDescription);
-                AddValueToBio(RemoveComma(vunerables), "Vulnerabilities", result, monsterKnowledgeHardDescription);
+                resistances = RemoveComma(resistances);
+                vunerables = RemoveComma(vunerables);
             }
 
-            var immuneStringList = new List<string>();
-            immuneStringList.Add(immunities);
-            immuneStringList.Add(input.Immune);
-            AddValuesToBio(immuneStringList, "Immune", result, monsterKnowledgeHardDescription);
+            string[] splitter = { ", " };
+            var immuneList = input.Immune.Split(splitter, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var resistList = input.Resist.Split(splitter, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var vulnerableList = input.Vulnerable.Split(splitter, StringSplitOptions.RemoveEmptyEntries).ToList();
+            result.untypedResistances.resistances = resistList.Select(str => str.Trim()).ToList();
+            result.untypedResistances.vulnerabilities = vulnerableList.Select(str => str.Trim()).ToList();
+            result.untypedResistances.immunities = immuneList.Select(str => str.Trim()).ToList();
+            result.untypedResistances.resistances.RemoveAll(string.IsNullOrEmpty);
+            result.untypedResistances.vulnerabilities.RemoveAll(string.IsNullOrEmpty);
+            result.untypedResistances.immunities.RemoveAll(string.IsNullOrEmpty);
 
             if (!string.IsNullOrEmpty(input.Immune))
             {
@@ -444,6 +452,29 @@ namespace EncounterExport
                     }
                 }
             }
+            
+            var immuneStringList = new List<string>
+            {
+                immunities,
+                input.Immune
+            };
+            AddValuesToBio(immuneStringList, "Immune", result, monsterKnowledgeHardDescription);
+            
+            var resistStringList = new List<string>
+            {
+                resistances,
+                input.Resist
+            };
+            
+            AddValuesToBio(resistStringList, "Resistances", result, monsterKnowledgeHardDescription);
+            
+            var vulnerablesStringList = new List<string>
+            {
+                vunerables,
+                input.Vulnerable
+            };
+            AddValuesToBio(vulnerablesStringList, "Vulnerabilities", result, monsterKnowledgeHardDescription);
+            
         }
 
         private static string SizeToString(CreatureSize size)

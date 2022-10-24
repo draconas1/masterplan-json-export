@@ -59,7 +59,7 @@ namespace EncounterExport
     public class ImporterVersion
     {
         public int major { get; set; } = 3;
-        public int minor { get; set; } = 2;
+        public int minor { get; set; } = 3;
         public int patch { get; set; } = 0;
     }
 

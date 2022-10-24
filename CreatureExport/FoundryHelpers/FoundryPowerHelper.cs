@@ -404,7 +404,7 @@ namespace EncounterExport.FoundryHelpers
             }
 
             powerData.attack.def = def.ToLowerInvariant();
-            powerData.attack.formula = attackBonus.ToString();
+            powerData.attack.formula = $"{attackBonus.ToString()} + @atkMod";
             powerData.description.chat += $"{range}, {attackBonus} vs {def}";
 
             // reminder that details is the entire block and that Damage is Masterplans attempt to parse it out
@@ -413,7 +413,8 @@ namespace EncounterExport.FoundryHelpers
             powerData.hit.formula = damage.NumDice > 0
                 ? damage.NumDice + "d" + damage.DiceSize + "+" + damage.Bonus
                 : damage.Bonus.ToString();
-            powerData.hit.critFormula = damage.NumDice + "*" + damage.DiceSize + "+" + damage.Bonus;
+            powerData.hit.formula += " + @dmgMod";
+            powerData.hit.critFormula = damage.NumDice + "*" + damage.DiceSize + "+" + damage.Bonus + " + @dmgMod";
 
             // attempt to get miss, effect and special out of the details.  
             {

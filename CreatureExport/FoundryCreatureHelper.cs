@@ -260,7 +260,7 @@ namespace EncounterExport
             }
             var data = creatureAndErrors.Creature.Data;
             var secondaryType = data.details.role.secondary == "standard" ? "" : data.details.role.secondary;
-            description.value += $"<p><b>Role: </b>level {data.details.level} {creatureSize} {secondaryType} {data.details.role.primary}";
+            description.value += $"<p><strong>Role: </strong>level {data.details.level} {creatureSize} {secondaryType} {data.details.role.primary}";
             if (data.details.role.leader)
             {
                 description.value += " (leader)</p>\n";
@@ -269,7 +269,7 @@ namespace EncounterExport
             {
                 description.value += "</p>\n";
             }
-            description.value += $"<p><b>Type: </b>{data.details.origin} {data.details.typeValue}";
+            description.value += $"<p><strong>Type: </strong>{data.details.origin} {data.details.typeValue}";
             if (string.IsNullOrEmpty(data.details.other))
             {
                 description.value += $"</p>\n";
@@ -279,7 +279,7 @@ namespace EncounterExport
                 description.value += $" ({data.details.other})</p>\n";
             }
 
-            description.value += $"<p><b>Typical Alignment:</b> {data.details.alignment}</p>\n";
+            description.value += $"<p><strong>Typical Alignment:</strong> {data.details.alignment}</p>\n";
             description.value += $"<p>Ask your DM for typical temperament</p>\n";
             
             var hardKnowledge = new FoundryTrait
@@ -296,7 +296,7 @@ namespace EncounterExport
             
             foreach (var power in creatureAndErrors.Creature.Powers)
             {
-                hardDescription.value += $"<p><b>{power.name}</b><br/>{power.data.description.chat}</p>\n";
+                hardDescription.value += $"<h3><strong>{power.name} \u2666 {power.data.useType.Replace("atwill","at will")}</strong></h3><p class=\"power-basics\">{power.data.description.chat}</p>\n";
                 power.data.description.chat = "";
             }
             hardDescription.value += $"</table>\n";
@@ -306,7 +306,7 @@ namespace EncounterExport
                 hardDescription.value += $"<h2>Traits</h2>\n<table>";
                 foreach (var trait in creatureAndErrors.Creature.Traits)
                 {
-                    hardDescription.value += $"<p><b>{trait.name}</b><br/>{trait.data.description.value}</p>\n";
+                    hardDescription.value += $"<h3><strong>{trait.name}</strong></h3><p>{trait.data.description.value}</p>\n";
                 }
                 hardDescription.value += $"</table>\n";
             }
@@ -320,7 +320,7 @@ namespace EncounterExport
             if (!string.IsNullOrEmpty(inputValue))
             {
                 creatureData.biography += $"<h1>{header}</h1>\n";
-                creatureData.biography += $"<p>{inputValue}</p>\n";
+                creatureData.biography += $"<strong>{inputValue}</strong>\n";
 
                 if (monsterKnowledgeHardDescription != null)
                 {
@@ -357,7 +357,7 @@ namespace EncounterExport
                 name = power.Name
             };
             // sometimes details are in the range field for traits
-            result.data.description.value = string.IsNullOrEmpty(power.Details) ? power.Range : power.Details;
+            result.data.description.value = "<p>" + (string.IsNullOrEmpty(power.Details) ? power.Range : power.Details) + "</p>";
             return result;
         }
 
@@ -659,13 +659,13 @@ namespace EncounterExport
 
                     output.biography += $"<h2>{aura.Name}</h2>\n";
                     output.biography += $"<p>{aura.Details}</p>\n";
-                    hardDescription.value += $"<tr><td><b>{aura.Name}</b></td><td>{aura.Details}</td></tr>\n";
+                    hardDescription.value += $"<tr><td><strong>{aura.Name}</strong></td><td>{aura.Details}</td></tr>\n";
 
                     var trait = new FoundryTrait()
                     {
                         name = "Aura: " + aura.Name
                     };
-                    trait.data.description.value = aura.Details;
+                    trait.data.description.value = "<p>" + aura.Details + "</p>";
                     auraTraits.Add(trait);
 
                 }

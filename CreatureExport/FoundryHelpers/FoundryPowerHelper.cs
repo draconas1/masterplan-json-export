@@ -149,7 +149,7 @@ namespace EncounterExport.FoundryHelpers
                 }
             }
 
-            var detailString = $"{power.Action.Action}, {power.Action.Use}, ";
+            var detailString = $"<em>{power.Action.Action}, {power.Action.Use},</em> ";
             var use = "atwill";
 
             switch (power.Action.Use)
@@ -402,7 +402,7 @@ namespace EncounterExport.FoundryHelpers
                     break;
                 default: break;
             }
-
+         
             powerData.attack.def = def.ToLowerInvariant();
             powerData.attack.formula = $"{attackBonus.ToString()} + @atkMod";
             powerData.description.chat += $"{range}, {attackBonus} vs {def}";

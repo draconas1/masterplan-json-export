@@ -100,7 +100,7 @@ namespace EncounterExport
                     {
                         name = "Description"
                     };
-                    trait.data.description.value = input.ReadAloud;
+                    trait.system.description.value = input.ReadAloud;
                     traits.Add(trait);
                 }
                 if (!String.IsNullOrEmpty(input.Trigger))
@@ -109,7 +109,7 @@ namespace EncounterExport
                     {
                         name = "Trigger"
                     };
-                    trigger.data.description.value = input.Trigger;
+                    trigger.system.description.value = input.Trigger;
                     traits.Add(trigger);
                 }
                 var inputCountermeasures = input.Countermeasures.Select(x => x.Split( new[] { "\r\n", "\r", "\n" },
@@ -120,7 +120,7 @@ namespace EncounterExport
                     {
                         name = "Countermeasures"
                     };
-                    counters.data.description.value = String.Join("\n", inputCountermeasures.Select(x => "<p>" + x + "</p>").ToArray());
+                    counters.system.description.value = String.Join("\n", inputCountermeasures.Select(x => "<p>" + x + "</p>").ToArray());
                     traits.Add(counters);
                 }
 
@@ -131,7 +131,7 @@ namespace EncounterExport
                         name = "Skills"
                     };
                     
-                    skills.data.description.value = String.Join("\n", input.Skills.Select(x => $"<p><b>{x.SkillName} DC {x.DC}: </b> {x.Details}</p>").ToArray());
+                    skills.system.description.value = String.Join("\n", input.Skills.Select(x => $"<p><b>{x.SkillName} DC {x.DC}: </b> {x.Details}</p>").ToArray());
                     traits.Add(skills);
                 }
                 
@@ -155,7 +155,7 @@ namespace EncounterExport
                             img = "icons/svg/trap.svg"
                         };
                         powers.Add(power);
-                        var powerData = power.data;
+                        var powerData = power.system;
                         powerData.keywords = inputAttack.Keywords.Split(CommonHelpers.separator, StringSplitOptions.RemoveEmptyEntries)
                             .Select(x => x.Trim()).ToList();
                         FoundryPowerHelper.ProcessAttackDamageAndRange(power, errors,

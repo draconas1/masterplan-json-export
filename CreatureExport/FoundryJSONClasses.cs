@@ -58,9 +58,9 @@ namespace EncounterExport
 
     public class ImporterVersion
     {
-        public int major { get; set; } = 3;
-        public int minor { get; set; } = 3;
-        public int patch { get; set; } = 0;
+        public int major { get; set; } = 4;
+        public int minor { get; set; } = 0;
+        public int patch { get; set; } = 1;
     }
 
     public class FoundryCreature
@@ -244,7 +244,7 @@ namespace EncounterExport
         public string name { get; set; }
         public string type { get; set; } = "raceFeats";
         public string img { get; set; } = "icons/svg/light.svg";
-        public FoundryTraitData data { get; set; } = new FoundryTraitData();
+        public FoundryTraitData system { get; set; } = new FoundryTraitData();
     }
 
     public class FoundryTraitData
@@ -257,7 +257,7 @@ namespace EncounterExport
         public string name { get; set; }
         public string type { get; set; } = "power";
         public string img { get; set; } = "icons/svg/aura.svg";
-        public FoundryPowerData data { get; set; } = new FoundryPowerData();
+        public FoundryPowerData system { get; set; } = new FoundryPowerData();
     }
 
     public class PowerComparer : IComparer<FoundryPower>
@@ -278,28 +278,28 @@ namespace EncounterExport
             {
                 return -1;
             }
-            switch (x.data.attack.isAttack)
+            switch (x.system.attack.isAttack)
             {
-                case true when !y.data.attack.isAttack:
+                case true when !y.system.attack.isAttack:
                     return -1;
-                case false when y.data.attack.isAttack:
+                case false when y.system.attack.isAttack:
                     return 1;
-                case false when !y.data.attack.isAttack:
+                case false when !y.system.attack.isAttack:
                     return string.Compare(x.name, y.name, StringComparison.Ordinal);
             }
             
-            switch (x.data.basicAttack)
+            switch (x.system.basicAttack)
             {
-                case true when !y.data.basicAttack:
+                case true when !y.system.basicAttack:
                     return -1;
-                case false when y.data.basicAttack:
+                case false when y.system.basicAttack:
                     return 1;
                 case true:
-                    switch (x.data.isMelee)
+                    switch (x.system.isMelee)
                     {
-                        case true when !y.data.isMelee:
+                        case true when !y.system.isMelee:
                             return -1;
-                        case false when y.data.isMelee:
+                        case false when y.system.isMelee:
                             return 1;
                     }
                     return string.Compare(x.name, y.name, StringComparison.Ordinal);

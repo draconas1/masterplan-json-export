@@ -126,7 +126,7 @@ namespace EncounterExport.FoundryHelpers
                 name = power.Name,
                 _id = newId()
             };
-            var powerData = resultPower.data;
+            var powerData = resultPower.system;
             powerData.keywords = power.Keywords.Split(CommonHelpers.separator, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim()).ToList();
 
@@ -268,9 +268,9 @@ namespace EncounterExport.FoundryHelpers
                 detailString += $"{powerData.effect.detail}";
             }
           
-            resultPower.data.attack.isAttack = false;
-            resultPower.data.hit.isDamage = false;
-            resultPower.data.description.chat = detailString;
+            resultPower.system.attack.isAttack = false;
+            resultPower.system.hit.isDamage = false;
+            resultPower.system.description.chat = detailString;
 
             return resultPower;
         }
@@ -294,9 +294,9 @@ namespace EncounterExport.FoundryHelpers
         public static FoundryPower ProcessAttack(CreaturePower power, List<string> errors)
         {
             var resultPower = ProcessAction(power, errors, true);
-            var powerData = resultPower.data;
-            resultPower.data.attack.isAttack = true;
-            resultPower.data.hit.isDamage = true;
+            var powerData = resultPower.system;
+            resultPower.system.attack.isAttack = true;
+            resultPower.system.hit.isDamage = true;
 
             ProcessAttackDamageAndRange(resultPower, errors, power.Details, power.Damage, power.Attack.Defence,
                 power.Attack.Bonus, power.Range);
@@ -348,7 +348,7 @@ namespace EncounterExport.FoundryHelpers
             int attackBonus,
             string range)
         {
-            var powerData = foundryPower.data;
+            var powerData = foundryPower.system;
              // check to see if it was an elemental damage type, if not we fall back tp physcal 
             var shouldAddPhysicalDamage = true;
             var keywordsHashSet = new HashSet<string>(powerData.keywords.Select(x => x.ToLowerInvariant()));

@@ -225,7 +225,7 @@ namespace EncounterExport
                     img = "icons/svg/mystery-man.svg"
                     
                 };
-                usefulStuff.data.description.value = result.biography;
+                usefulStuff.system.description.value = result.biography;
                 result.biography = "";
                 traits.Add(usefulStuff);
 
@@ -251,7 +251,7 @@ namespace EncounterExport
             
             
             
-            var description = medKnowledge.data.description;
+            var description = medKnowledge.system.description;
             description.value += $"<h1>{creatureAndErrors.Creature.Name}</h1>\n";
             var titleRemains = creature.Title.Replace(creatureAndErrors.Creature.Name, "");
             if (titleRemains.Trim() != "")
@@ -288,16 +288,16 @@ namespace EncounterExport
                 type = EPIC_DESTINY_POWER_TYPE,
                 img = "icons/svg/book.svg"
             };
-            hardKnowledge.data.description = hardDescription;
+            hardKnowledge.system.description = hardDescription;
             // prefix on the medium stuff
-            hardDescription.value = medKnowledge.data.description.value + hardDescription.value;
+            hardDescription.value = medKnowledge.system.description.value + hardDescription.value;
 
             hardDescription.value += $"<h2>Powers</h2>\n";
             
             foreach (var power in creatureAndErrors.Creature.Powers)
             {
-                hardDescription.value += $"<h3><strong>{power.name} \u2666 {power.data.useType.Replace("atwill","at will")}</strong></h3><p class=\"power-basics\">{power.data.description.chat}</p>\n";
-                power.data.description.chat = "";
+                hardDescription.value += $"<h3><strong>{power.name} \u2666 {power.system.useType.Replace("atwill","at will")}</strong></h3><p class=\"power-basics\">{power.system.description.chat}</p>\n";
+                power.system.description.chat = "";
             }
             hardDescription.value += $"</table>\n";
 
@@ -306,7 +306,7 @@ namespace EncounterExport
                 hardDescription.value += $"<h2>Traits</h2>\n<table>";
                 foreach (var trait in creatureAndErrors.Creature.Traits)
                 {
-                    hardDescription.value += $"<h3><strong>{trait.name}</strong></h3><p>{trait.data.description.value}</p>\n";
+                    hardDescription.value += $"<h3><strong>{trait.name}</strong></h3><p>{trait.system.description.value}</p>\n";
                 }
                 hardDescription.value += $"</table>\n";
             }
@@ -357,7 +357,7 @@ namespace EncounterExport
                 name = power.Name
             };
             // sometimes details are in the range field for traits
-            result.data.description.value = "<p>" + (string.IsNullOrEmpty(power.Details) ? power.Range : power.Details) + "</p>";
+            result.system.description.value = "<p>" + (string.IsNullOrEmpty(power.Details) ? power.Range : power.Details) + "</p>";
             return result;
         }
 
@@ -665,7 +665,7 @@ namespace EncounterExport
                     {
                         name = "Aura: " + aura.Name
                     };
-                    trait.data.description.value = "<p>" + aura.Details + "</p>";
+                    trait.system.description.value = "<p>" + aura.Details + "</p>";
                     auraTraits.Add(trait);
 
                 }

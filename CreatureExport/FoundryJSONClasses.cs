@@ -58,7 +58,7 @@ namespace EncounterExport
 
     public class ImporterVersion
     {
-        public int major { get; set; } = 4;
+        public int major { get; set; } = 5;
         public int minor { get; set; } = 0;
         public int patch { get; set; } = 1;
     }
@@ -242,13 +242,15 @@ namespace EncounterExport
     public class FoundryTrait
     {
         public string name { get; set; }
-        public string type { get; set; } = "raceFeats";
+        public string type { get; set; } = "feature";
         public string img { get; set; } = "icons/svg/light.svg";
         public FoundryTraitData system { get; set; } = new FoundryTraitData();
     }
 
     public class FoundryTraitData
     {
+        public string featureType { get; set; } = "heritage";
+        public string auraSize { get; set; }
         public FoundryPowerDescription description { get; set; } = new FoundryPowerDescription();
     }
     public class FoundryPower

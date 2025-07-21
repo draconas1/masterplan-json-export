@@ -13,7 +13,8 @@ namespace EncounterExport
     public static class FoundryCreatureHelper
     {
         private const bool DEBUG = false;
-        private const string EPIC_DESTINY_POWER_TYPE = "destinyFeats";
+        private const string EPIC_DESTINY_FEATURE_TYPE = "destiny";
+        private const string TRAIT_FEATURE_TYPE = "trait";
         public static FoundryCreatureAndErrors CreateCreature(EncounterCreature encounterCreature)
         {
             /*
@@ -221,10 +222,9 @@ namespace EncounterExport
                 var usefulStuff = new FoundryTrait
                 {
                     name = "Misc NPC Info",
-                    type = EPIC_DESTINY_POWER_TYPE,
                     img = "icons/svg/mystery-man.svg"
-                    
                 };
+                usefulStuff.system.featureType = EPIC_DESTINY_FEATURE_TYPE;
                 usefulStuff.system.description.value = result.biography;
                 result.biography = "";
                 traits.Add(usefulStuff);
@@ -244,11 +244,10 @@ namespace EncounterExport
             var medKnowledge = new FoundryTrait
             {
                 name = "Monster Knowledge (med)",
-                type = EPIC_DESTINY_POWER_TYPE,
                 img = "icons/svg/book.svg"
                     
             };
-            
+            medKnowledge.system.featureType = EPIC_DESTINY_FEATURE_TYPE;
             
             
             var description = medKnowledge.system.description;
@@ -285,9 +284,9 @@ namespace EncounterExport
             var hardKnowledge = new FoundryTrait
             {
                 name = "Monster Knowledge (hard)",
-                type = EPIC_DESTINY_POWER_TYPE,
                 img = "icons/svg/book.svg"
             };
+            hardKnowledge.system.featureType = EPIC_DESTINY_FEATURE_TYPE;
             hardKnowledge.system.description = hardDescription;
             // prefix on the medium stuff
             hardDescription.value = medKnowledge.system.description.value + hardDescription.value;
@@ -356,6 +355,7 @@ namespace EncounterExport
             {
                 name = power.Name
             };
+            result.system.featureType = TRAIT_FEATURE_TYPE;
             // sometimes details are in the range field for traits
             result.system.description.value = "<p>" + (string.IsNullOrEmpty(power.Details) ? power.Range : power.Details) + "</p>";
             return result;
@@ -665,6 +665,8 @@ namespace EncounterExport
                     {
                         name = "Aura: " + aura.Name
                     };
+                    trait.system.featureType = TRAIT_FEATURE_TYPE;
+                    trait.system.auraSize = "" + foundryAura.distance;
                     trait.system.description.value = "<p>" + aura.Details + "</p>";
                     auraTraits.Add(trait);
 

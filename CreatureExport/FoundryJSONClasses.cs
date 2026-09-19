@@ -373,6 +373,8 @@ namespace EncounterExport
     public class FoundryPowerAttack
     {
         public bool isAttack { get; set; } = true;
+        
+        public bool isBasic { get; set; } = false;
         public string def { get; set; }
         public string formula { get; set; }
 

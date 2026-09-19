@@ -301,7 +301,7 @@ namespace EncounterExport.FoundryHelpers
             ProcessAttackDamageAndRange(resultPower, errors, power.Details, power.Damage, power.Attack.Defence,
                 power.Attack.Bonus, power.Range);
             
-            powerData.level = powerData.basicAttack ? "B" : "";
+            powerData.attack.isBasic = powerData.basicAttack;
             
             if (powerData.isMelee)
             {
